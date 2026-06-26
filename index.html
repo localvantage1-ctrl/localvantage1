@@ -1,337 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Business Analytics & Lead Generation</title>
-<style>
-  :root {
-    --bg-dark: #121824;
-    --card-bg: #1c2536;
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --accent-blue: #3b82f6;
-    --danger-red: #ef4444;
-    --success-green: #22c55e;
-    --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  }
-  body {
-    margin: 0;
-    padding: 20px;
-    background-color: var(--bg-dark);
-    font-family: var(--font-family);
-    color: var(--text-primary);
-  }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  @media (min-width: 768px) {
-    .container {
-      grid-template-columns: 300px 1fr;
-    }
-  }
-  .card {
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-  h2 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: var(--accent-blue);
-  }
-  .search-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .search-group input, .search-group select {
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #334155;
-    background-color: #0f172a;
-    color: white;
-  }
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    max-height: 600px;
-    overflow-y: auto;
-  }
-  li {
-    padding: 10px;
-    border-bottom: 1px solid #334155;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  li:hover {
-    background-color: var(--accent-blue);
-    color: white;
-  }
-  #map-view {
-    height: 300px;
-    background-color: #334155;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-  }
-  th, td {
-    text-align: left;
-    padding: 12px;
-    border-bottom: 1px solid #334155;
-  }
-  th {
-    color: var(--text-secondary);
-  }
-  .btn {
-    background-color: var(--accent-blue);
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 5px;
-    margin-bottom: 5px;
-  }
-  .btn-danger { background-color: var(--danger-red); }
-  .btn-success { background-color: var(--success-green); }
-  .hidden { display: none; }
-  
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.8);
-    overflow: auto;
-  }
-  .modal-content {
-    background-color: var(--card-bg);
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #334155;
-    width: 80%;
-    max-width: 800px;
-    border-radius: 8px;
-  }
-  .close {
-    color: var(--text-secondary);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  .close:hover { color: var(--text-primary); }
-</style>
+    <meta charset="UTF-8">
+    <title>Business Analytics & Lead Generation</title>
+    <style>
+        :root {
+            --bg-dark: #121824;
+            --card-bg: #1c2536;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-dark);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--accent-blue);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        li:hover {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+        #map-view {
+            height: 300px;
+            background-color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            color: var(--text-secondary);
+        }
+        .btn {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .btn-danger { background-color: var(--danger-red); }
+        .btn-success { background-color: var(--success-green); }
+        .hidden { display: none; }
+        
+        /* Modal for Sample Report */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #334155;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+        }
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: var(--text-primary); }
+    </style>
 </head>
 <body>
-
-<div class="container">
-  <div>
-    <div class="card">
-      <h2>Search Areas</h2>
-      <div class="search-group">
-        <input type="text" id="location-input" placeholder="Enter custom city...">
-        <select id="location-dropdown" onchange="updateSearchArea()">
-          <option value="">Select Metropolitan Area...</option>
-          <option value="Boise">Boise, ID</option>
-          <option value="New Meadows">New Meadows, ID</option>
-          <option value="Twin Falls">Twin Falls, ID</option>
-          <option value="Portland">Portland, OR</option>
-          <option value="Seattle">Seattle, WA</option>
-        </select>
-      </div>
-      <h2>Lead Directory</h2>
-      <ul id="lead-list">
-        <li onclick="showDetails('Apex Auto Body', 'Automotive', 'Meridian', 14, 42, '#1E293B', 'https://via.placeholder.com/300x150?text=Apex+Auto+Body')">Apex Auto Body</li>
-        <li onclick="showDetails('Boise Valley Plumbing', 'Home Services', 'Boise', 2, 85, '#0F172A', 'https://via.placeholder.com/300x150?text=Boise+Valley+Plumbing')">Boise Valley Plumbing</li>
-        <li onclick="showDetails('Star Cafe & Bakery', 'Hospitality', 'Star', 8, 60, '#334155', 'https://via.placeholder.com/300x150?text=Star+Cafe+Bakery')">Star Cafe & Bakery</li>
-      </ul>
+    <div class="container">
+        <div>
+            <div class="card">
+                <h2>Lead Directory</h2>
+                <ul id="lead-list">
+                    <li onclick="showDetails('Apex Auto Body', 'Automotive', 'Meridian', 14, 42, '#1E293B', 'https://via.placeholder.com/300x150?text=Apex+Auto+Body')">Apex Auto Body</li>
+                    <li onclick="showDetails('Boise Valley Plumbing', 'Home Services', 'Boise', 2, 85, '#0F172A', 'https://via.placeholder.com/300x150?text=Boise+Valley+Plumbing')">Boise Valley Plumbing</li>
+                    <li onclick="showDetails('Star Cafe & Bakery', 'Hospitality', 'Star', 8, 60, '#334155', 'https://via.placeholder.com/300x150?text=Star+Cafe+Bakery')">Star Cafe & Bakery</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <h2>Regional Map View & Rankings</h2>
+                <div id="map-view">
+                    <span>Map visualization showing 1-10 area rankings</span>
+                </div>
+            </div>
+            <div class="card" id="details-panel">
+                <h2>Business Detail Report</h2>
+                <div id="business-info">
+                    <p>Select a business from the directory to view details.</p>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h2>Won Contracts & Revenue</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Monthly Retainer</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crm-table">
+                        <tr>
+                            <td>Nampa Logistics</td>
+                            <td>$1,500</td>
+                            <td>Active</td>
+                        </tr>
+                        <tr>
+                            <td>Caldwell Tire</td>
+                            <td>$1,200</td>
+                            <td>Active</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn" style="margin-top: 15px;">Add Contract</button>
+                <button class="btn btn-danger" id="toggle-finance-btn" onclick="toggleFinance()">View Hidden Financial Report</button>
+            </div>
+            <div class="card hidden" id="finance-report" style="margin-top: 20px;">
+                <h2>Hidden Cost & Profit Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Monthly Revenue</th>
+                            <th>Monthly Costs</th>
+                            <th>Net Profit</th>
+                            <th>Year End (12/31)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nampa Logistics</td>
+                            <td>$1,500</td>
+                            <td>$500</td>
+                            <td>$1,000</td>
+                            <td>$12,000</td>
+                        </tr>
+                        <tr>
+                            <td>Caldwell Tire</td>
+                            <td>$1,200</td>
+                            <td>$400</td>
+                            <td>$800</td>
+                            <td>$9,600</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div>
-    <div class="card" style="margin-bottom: 20px;">
-      <h2>Regional Map View & Rankings</h2>
-      <div id="map-view">
-        <span>Map visualization showing 1-10 area rankings</span>
-      </div>
+    <!-- Modal for Sample Report -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <div id="modal-body"></div>
+        </div>
     </div>
 
-    <div class="card" id="details-panel">
-      <h2>Business Detail Report</h2>
-      <div id="business-info">
-        <p>Select a business from the directory to view details.</p>
-      </div>
-    </div>
+    <script>
+        let currentBusiness = null;
+        function showDetails(name, type, location, rank, seo, color, picUrl) {
+            currentBusiness = { name, type, location, rank, seo, color, picUrl };
+            const info = document.getElementById('business-info');
+            info.innerHTML = `
+                <p><strong>Business Name:</strong> ${name}</p>
+                <p><strong>Type:</strong> ${type}</p>
+                <p><strong>Location:</strong> ${location}, ID</p>
+                <p><strong>Current Rank:</strong> #${rank} in local map pack</p>
+                <p><strong>SEO Score:</strong> ${seo}/100</p>
+                <button class="btn" onclick="openModal()">View Sample Report</button>
+                <button class="btn btn-success" onclick="toggleRecommendations()">Toggle SEO Recommendations</button>
+                <div id="seo-rec-section" class="hidden" style="margin-top:15px; padding:10px; background-color:#0f172a; border-left:4px solid #3b82f6;">
+                    <h4>Internal Ranking Recommendations</h4>
+                    <ul>
+                        <li>Fix NAP (Name, Address, Phone) inconsistencies across the web.</li>
+                        <li>Embed Google Map on the homepage.</li>
+                        <li>Increase review velocity by 5 new reviews/month.</li>
+                        <li>Add local structured data (Schema markup) to the website.</li>
+                    </ul>
+                </div>
+            `;
+        }
 
-    <div class="card" style="margin-top: 20px;">
-      <h2>Won Contracts & Revenue</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client Name</th>
-            <th>Monthly Retainer</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="crm-table">
-          <tr>
-            <td>Nampa Logistics</td>
-            <td>$1,500</td>
-            <td>Active</td>
-          </tr>
-          <tr>
-            <td>Caldwell Tire</td>
-            <td>$1,200</td>
-            <td>Active</td>
-          </tr>
-        </tbody>
-      </table>
-      <button class="btn" style="margin-top: 15px;">Add Contract</button>
-      <button class="btn btn-danger" id="toggle-finance-btn" onclick="toggleFinance()">View Hidden Financial Report</button>
-    </div>
+        function openModal() {
+            if (!currentBusiness) return;
+            const modal = document.getElementById('report-modal');
+            const modalBody = document.getElementById('modal-body');
+            const modalContent = document.getElementById('modal-content');
+            modalContent.style.borderColor = currentBusiness.color;
+            modalBody.innerHTML = `
+                <h2 style="color: ${currentBusiness.color}; border-bottom: 2px solid ${currentBusiness.color}; padding-bottom: 10px;">Sample Report: ${currentBusiness.name}</h2>
+                <img src="${currentBusiness.picUrl}" alt="${currentBusiness.name}" style="max-width: 100%; border-radius: 4px; margin-bottom: 15px;">
+                <p><strong>Location:</strong> ${currentBusiness.location}, ID</p>
+                <p><strong>Map Ranking:</strong> #${currentBusiness.rank} for local search terms</p>
+                <p>This is a customized sample report reflecting your presence and potential to stand out outside your immediate zip code.</p>
+                <button class="btn" onclick="alert('Email sent to client!')">Send Email Sample</button>
+            `;
+            modal.style.display = "block";
+        }
 
-    <div class="card hidden" id="finance-report" style="margin-top: 20px;">
-      <h2>Hidden Cost & Profit Report</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client Name</th>
-            <th>Monthly Revenue</th>
-            <th>Monthly Costs</th>
-            <th>Net Profit</th>
-            <th>Year End (12/31)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Nampa Logistics</td>
-            <td>$1,500</td>
-            <td>$500</td>
-            <td>$1,000</td>
-            <td>$12,000</td>
-          </tr>
-          <tr>
-            <td>Caldwell Tire</td>
-            <td>$1,200</td>
-            <td>$400</td>
-            <td>$800</td>
-            <td>$9,600</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+        function closeModal() {
+            document.getElementById('report-modal').style.display = "none";
+        }
 
-<div id="report-modal" class="modal">
-  <div class="modal-content" id="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <div id="modal-body"></div>
-  </div>
-</div>
+        function toggleRecommendations() {
+            const sec = document.getElementById('seo-rec-section');
+            if (sec) sec.classList.toggle('hidden');
+        }
 
-<script>
-  let currentBusiness = null;
+        function toggleFinance() {
+            const report = document.getElementById('finance-report');
+            const btn = document.getElementById('toggle-finance-btn');
+            if (report.classList.contains('hidden')) {
+                report.classList.remove('hidden');
+                btn.innerText = 'Hide Financial Report';
+                btn.classList.add('btn-danger');
+            } else {
+                report.classList.add('hidden');
+                btn.innerText = 'View Hidden Financial Report';
+                btn.classList.remove('btn-danger');
+            }
+        }
 
-  function updateSearchArea() {
-    const dropdown = document.getElementById('location-dropdown');
-    const input = document.getElementById('location-input');
-    if (dropdown.value) {
-      input.value = dropdown.value;
-      alert("Searching area: " + dropdown.value);
-    }
-  }
-
-  function showDetails(name, type, location, rank, seo, color, picUrl) {
-    currentBusiness = { name, type, location, rank, seo, color, picUrl };
-    const info = document.getElementById('business-info');
-    info.innerHTML = `
-      <p><strong>Business Name:</strong> ${name}</p>
-      <p><strong>Type:</strong> ${type}</p>
-      <p><strong>Location:</strong> ${location}, ID</p>
-      <p><strong>Current Rank:</strong> #${rank} in local map pack</p>
-      <p><strong>SEO Score:</strong> ${seo}/100</p>
-      <button class="btn" onclick="openModal()">View Sample Report</button>
-      <button class="btn btn-success" onclick="toggleRecommendations()">Toggle SEO Recommendations</button>
-      <div id="seo-rec-section" class="hidden" style="margin-top:15px; padding:10px; background-color:#0f172a; border-left:4px solid #3b82f6;">
-        <h4>Internal Ranking Recommendations</h4>
-        <ul>
-          <li>Fix NAP (Name, Address, Phone) inconsistencies across the web.</li>
-          <li>Embed Google Map on the homepage.</li>
-          <li>Increase review velocity by 5 new reviews/month.</li>
-          <li>Add local structured data (Schema markup) to the website.</li>
-        </ul>
-      </div>
-    `;
-  }
-
-  function openModal() {
-    if (!currentBusiness) return;
-    const modal = document.getElementById('report-modal');
-    const modalBody = document.getElementById('modal-body');
-    const modalContent = document.getElementById('modal-content');
-    
-    modalContent.style.borderColor = currentBusiness.color;
-    
-    modalBody.innerHTML = `
-      <h2 style="color: ${currentBusiness.color}; border-bottom: 2px solid ${currentBusiness.color}; padding-bottom: 10px;">Sample Report: ${currentBusiness.name}</h2>
-      <img src="${currentBusiness.picUrl}" alt="${currentBusiness.name}" style="max-width: 100%; border-radius: 4px; margin-bottom: 15px;">
-      <p><strong>Location:</strong> ${currentBusiness.location}, ID</p>
-      <p><strong>Map Ranking:</strong> #${currentBusiness.rank} for local search terms</p>
-      <p>This is a customized sample report reflecting your presence and potential to stand out outside your immediate zip code.</p>
-      <button class="btn" onclick="alert('Email sent to client!')">Send Email Sample</button>
-    `;
-    modal.style.display = "block";
-  }
-
-  function closeModal() {
-    document.getElementById('report-modal').style.display = "none";
-  }
-
-  function toggleRecommendations() {
-    const sec = document.getElementById('seo-rec-section');
-    if (sec) sec.classList.toggle('hidden');
-  }
-
-  function toggleFinance() {
-    const report = document.getElementById('finance-report');
-    const btn = document.getElementById('toggle-finance-btn');
-    if (report.classList.contains('hidden')) {
-      report.classList.remove('hidden');
-      btn.innerText = 'Hide Financial Report';
-      btn.classList.add('btn-danger');
-    } else {
-      report.classList.add('hidden');
-      btn.innerText = 'View Hidden Financial Report';
-      btn.classList.remove('btn-danger');
-    }
-  }
-
-  window.onclick = function(event) {
-    const modal = document.getElementById('report-modal');
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-</script>
-
+        window.onclick = function(event) {
+            const modal = document.getElementById('report-modal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
+
+
