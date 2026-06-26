@@ -1,300 +1,517 @@
-Local Vantage Application Source Code
-The complete HTML, CSS, and JavaScript source code for the Local Vantage single-page application is provided below.
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Business Analytics & Lead Generation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Vantage - Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #121824;
-            --card-bg: #1c2536;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent-blue: #3b82f6;
-            --danger-red: #ef4444;
-            --success-green: #22c55e;
-            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* Color Palette based on 1000001880.png - Vintage Leather & Gold */
+            --bg-dark: #16100c;
+            --panel-bg: #261b14;
+            --text-main: #e8dcc8;
+            --text-muted: #9e8568;
+            --accent-gold: #c89f53;
+            --accent-glow: rgba(200, 159, 83, 0.15);
+            --accent-bronze: #8c5a35;
+            --btn-green: #2b7a3e;
+            --btn-green-hover: #1f5c2d;
+            --border-color: #423023;
         }
+
         body {
-            margin: 0;
-            padding: 20px;
             background-color: var(--bg-dark);
-            font-family: var(--font-family);
-            color: var(--text-primary);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: 300px 1fr;
-            }
-        }
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
-            color: var(--accent-blue);
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
+            color: var(--text-main);
+            font-family: 'Georgia', serif;
             margin: 0;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #334155;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        li:hover {
-            background-color: var(--accent-blue);
-            color: white;
-        }
-        #map-view {
-            height: 300px;
-            background-color: #334155;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: radial-gradient(circle at center, #1f1610 0%, #100b08 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--text-main);
+            text-transform: uppercase;
+            font-weight: normal;
+        }
+        
+        .header h1 span {
+            color: var(--accent-gold);
+            font-style: italic;
+        }
+
+        .map-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .map-interactive {
+            height: 300px;
+            background: linear-gradient(135deg, #261b14 0%, #16100c 100%);
+            border: 1px solid var(--accent-gold);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #334155;
-        }
-        th {
-            color: var(--text-secondary);
-        }
-        .btn {
-            background-color: var(--accent-blue);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
+            color: var(--accent-gold);
             cursor: pointer;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            transition: all 0.3s ease;
         }
-        .btn-danger { background-color: var(--danger-red); }
-        .btn-success { background-color: var(--success-green); }
-        .hidden { display: none; }
-        
-        /* Modal for Sample Report */
+
+        .map-interactive:hover {
+            background-color: var(--accent-glow);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .map-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        select {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            border: 1px solid var(--accent-bronze);
+            padding: 8px 12px;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        .directory-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .directory-container h2 {
+            margin-top: 0;
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .lead-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        .lead-item {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .lead-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .lead-header:hover {
+            background-color: #1f1610;
+        }
+
+        .lead-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .lead-industry {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-style: italic;
+            font-family: 'Georgia', serif;
+        }
+
+        .lead-quick-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: #100b08;
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+        }
+
+        .stat-badge span {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .lead-details {
+            display: none;
+            padding: 15px;
+            background-color: #1f1610;
+            border-top: 1px solid var(--border-color);
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-box {
+            background-color: var(--bg-dark);
+            padding: 15px;
+            border-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+        }
+
+        .report-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding-bottom: 40px;
+        }
+
+        .btn-report {
+            background-color: var(--btn-green);
+            color: #fff;
+            border: 1px solid #1f5c2d;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-family: 'Georgia', serif;
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-report:hover {
+            background-color: var(--btn-green-hover);
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+        }
+
         .modal {
             display: none;
             position: fixed;
-            z-index: 10;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            overflow: auto;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 7, 5, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
+
         .modal-content {
-            background-color: var(--card-bg);
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #334155;
-            width: 80%;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--accent-bronze);
+            border-radius: 4px;
+            width: 90%;
             max-width: 800px;
-            border-radius: 8px;
+            padding: 30px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.9);
+            position: relative;
         }
-        .close {
-            color: var(--text-secondary);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: var(--text-muted);
+            font-size: 1.5rem;
             cursor: pointer;
+            transition: color 0.2s;
+            font-family: sans-serif;
         }
-        .close:hover { color: var(--text-primary); }
+
+        .close-btn:hover {
+            color: var(--accent-gold);
+        }
+
+        .graph-container {
+            margin-top: 20px;
+            height: 400px;
+            width: 100%;
+            background-color: var(--bg-dark);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <div>
-            <div class="card">
-                <h2>Lead Directory</h2>
-                <ul id="lead-list">
-                    <li onclick="showDetails('Apex Auto Body', 'Automotive', 'Meridian', 14, 42, '#1E293B', 'https://via.placeholder.com/300x150?text=Apex+Auto+Body')">Apex Auto Body</li>
-                    <li onclick="showDetails('Boise Valley Plumbing', 'Home Services', 'Boise', 2, 85, '#0F172A', 'https://via.placeholder.com/300x150?text=Boise+Valley+Plumbing')">Boise Valley Plumbing</li>
-                    <li onclick="showDetails('Star Cafe & Bakery', 'Hospitality', 'Star', 8, 60, '#334155', 'https://via.placeholder.com/300x150?text=Star+Cafe+Bakery')">Star Cafe & Bakery</li>
-                </ul>
-            </div>
+
+<div class="container">
+    <div class="header">
+        <h1>Local <span>Vantage</span></h1>
+        <div style="color: var(--text-muted); font-size: 0.9rem; font-family: 'Segoe UI', sans-serif;">Executive Directory</div>
+    </div>
+
+    <div class="map-container">
+        <div class="map-interactive" onclick="alert('Accessing regional topography...')">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
+                <circle cx="12" cy="10" r="3"/>
+                <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/>
+            </svg>
+            <span style="font-family: 'Segoe UI', sans-serif; letter-spacing: 1px;">SELECT REGION</span>
         </div>
-        <div>
-            <div class="card" style="margin-bottom: 20px;">
-                <h2>Regional Map View & Rankings</h2>
-                <div id="map-view">
-                    <span>Map visualization showing 1-10 area rankings</span>
-                </div>
-            </div>
-            <div class="card" id="details-panel">
-                <h2>Business Detail Report</h2>
-                <div id="business-info">
-                    <p>Select a business from the directory to view details.</p>
-                </div>
-            </div>
-            <div class="card" style="margin-top: 20px;">
-                <h2>Won Contracts & Revenue</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client Name</th>
-                            <th>Monthly Retainer</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="crm-table">
-                        <tr>
-                            <td>Nampa Logistics</td>
-                            <td>$1,500</td>
-                            <td>Active</td>
-                        </tr>
-                        <tr>
-                            <td>Caldwell Tire</td>
-                            <td>$1,200</td>
-                            <td>Active</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class="btn" style="margin-top: 15px;">Add Contract</button>
-                <button class="btn btn-danger" id="toggle-finance-btn" onclick="toggleFinance()">View Hidden Financial Report</button>
-            </div>
-            <div class="card hidden" id="finance-report" style="margin-top: 20px;">
-                <h2>Hidden Cost & Profit Report</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client Name</th>
-                            <th>Monthly Revenue</th>
-                            <th>Monthly Costs</th>
-                            <th>Net Profit</th>
-                            <th>Year End (12/31)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Nampa Logistics</td>
-                            <td>$1,500</td>
-                            <td>$500</td>
-                            <td>$1,000</td>
-                            <td>$12,000</td>
-                        </tr>
-                        <tr>
-                            <td>Caldwell Tire</td>
-                            <td>$1,200</td>
-                            <td>$400</td>
-                            <td>$800</td>
-                            <td>$9,600</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="map-controls">
+            <select id="region-select">
+                <option value="nampa">Nampa Area</option>
+                <option value="boise">Boise Metro</option>
+                <option value="meridian">Meridian</option>
+                <option value="caldwell">Caldwell</option>
+            </select>
+            <select id="industry-select">
+                <option value="all">All Industries</option>
+                <option value="auto">Automotive</option>
+                <option value="plumbing">Contractors</option>
+                <option value="food">Hospitality</option>
+            </select>
         </div>
     </div>
 
-    <!-- Modal for Sample Report -->
-    <div id="report-modal" class="modal">
-        <div class="modal-content" id="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <div id="modal-body"></div>
-        </div>
+    <div class="directory-container">
+        <h2>Target Lead Directory</h2>
+        <ul class="lead-list">
+            <li class="lead-item">
+                <div class="lead-header" onclick="toggleDetails('lead1')">
+                    <div>
+                        <div class="lead-title">Apex Auto Body</div>
+                        <div class="lead-industry">Automotive Repair</div>
+                    </div>
+                    <div class="lead-quick-stats">
+                        <div class="stat-badge">Size: <span>$1.2M - $2.5M</span></div>
+                        <div class="stat-badge">Win Prob: <span>85%</span></div>
+                        <div style="color: var(--accent-gold);">▼</div>
+                    </div>
+                </div>
+                <div class="lead-details" id="lead1">
+                    <div class="detail-box">
+                        <div class="detail-label">Est. Business Size</div>
+                        <div class="detail-value">$1.2M - $2.5M / yr</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Probability of Winning</div>
+                        <div class="detail-value">85%</div>
+                    </div>
+                </div>
+            </li>
+            <li class="lead-item">
+                <div class="lead-header" onclick="toggleDetails('lead2')">
+                    <div>
+                        <div class="lead-title">Boise Valley Plumbing</div>
+                        <div class="lead-industry">Contracting & Services</div>
+                    </div>
+                    <div class="lead-quick-stats">
+                        <div class="stat-badge">Size: <span>$800k - $1.5M</span></div>
+                        <div class="stat-badge">Win Prob: <span>62%</span></div>
+                        <div style="color: var(--accent-gold);">▼</div>
+                    </div>
+                </div>
+                <div class="lead-details" id="lead2">
+                    <div class="detail-box">
+                        <div class="detail-label">Est. Business Size</div>
+                        <div class="detail-value">$800k - $1.5M / yr</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Probability of Winning</div>
+                        <div class="detail-value">62%</div>
+                    </div>
+                </div>
+            </li>
+            <li class="lead-item">
+                <div class="lead-header" onclick="toggleDetails('lead3')">
+                    <div>
+                        <div class="lead-title">Star Cafe & Bakery</div>
+                        <div class="lead-industry">Hospitality</div>
+                    </div>
+                    <div class="lead-quick-stats">
+                        <div class="stat-badge">Size: <span>$500k - $900k</span></div>
+                        <div class="stat-badge">Win Prob: <span>78%</span></div>
+                        <div style="color: var(--accent-gold);">▼</div>
+                    </div>
+                </div>
+                <div class="lead-details" id="lead3">
+                    <div class="detail-box">
+                        <div class="detail-label">Est. Business Size</div>
+                        <div class="detail-value">$500k - $900k / yr</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Probability of Winning</div>
+                        <div class="detail-value">78%</div>
+                    </div>
+                </div>
+            </li>
+        </ul>
     </div>
 
-    <script>
-        let currentBusiness = null;
-        function showDetails(name, type, location, rank, seo, color, picUrl) {
-            currentBusiness = { name, type, location, rank, seo, color, picUrl };
-            const info = document.getElementById('business-info');
-            info.innerHTML = `
-                <p><strong>Business Name:</strong> ${name}</p>
-                <p><strong>Type:</strong> ${type}</p>
-                <p><strong>Location:</strong> ${location}, ID</p>
-                <p><strong>Current Rank:</strong> #${rank} in local map pack</p>
-                <p><strong>SEO Score:</strong> ${seo}/100</p>
-                <button class="btn" onclick="openModal()">View Sample Report</button>
-                <button class="btn btn-success" onclick="toggleRecommendations()">Toggle SEO Recommendations</button>
-                <div id="seo-rec-section" class="hidden" style="margin-top:15px; padding:10px; background-color:#0f172a; border-left:4px solid #3b82f6;">
-                    <h4>Internal Ranking Recommendations</h4>
-                    <ul>
-                        <li>Fix NAP (Name, Address, Phone) inconsistencies across the web.</li>
-                        <li>Embed Google Map on the homepage.</li>
-                        <li>Increase review velocity by 5 new reviews/month.</li>
-                        <li>Add local structured data (Schema markup) to the website.</li>
-                    </ul>
-                </div>
-            `;
+    <div class="report-section">
+        <button class="btn-report" onclick="openReport()">Report</button>
+    </div>
+</div>
+
+<div class="modal" id="reportModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeReport()">✖</span>
+        <h2 style="margin-top:0; color: var(--accent-gold); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Financial Ledger</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-family: 'Segoe UI', sans-serif;">Won Contracts: Revenue vs. Costs & Growth</p>
+        
+        <div class="graph-container">
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleDetails(id) {
+        const details = document.getElementById(id);
+        if (details.style.display === "grid") {
+            details.style.display = "none";
+        } else {
+            details.style.display = "grid";
+        }
+    }
+
+    const modal = document.getElementById('reportModal');
+    let chartInstance = null;
+
+    function openReport() {
+        modal.style.display = 'flex';
+        renderChart();
+    }
+
+    function closeReport() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeReport();
+        }
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        
+        if (chartInstance) {
+            chartInstance.destroy();
         }
 
-        function openModal() {
-            if (!currentBusiness) return;
-            const modal = document.getElementById('report-modal');
-            const modalBody = document.getElementById('modal-body');
-            const modalContent = document.getElementById('modal-content');
-            modalContent.style.borderColor = currentBusiness.color;
-            modalBody.innerHTML = `
-                <h2 style="color: ${currentBusiness.color}; border-bottom: 2px solid ${currentBusiness.color}; padding-bottom: 10px;">Sample Report: ${currentBusiness.name}</h2>
-                <img src="${currentBusiness.picUrl}" alt="${currentBusiness.name}" style="max-width: 100%; border-radius: 4px; margin-bottom: 15px;">
-                <p><strong>Location:</strong> ${currentBusiness.location}, ID</p>
-                <p><strong>Map Ranking:</strong> #${currentBusiness.rank} for local search terms</p>
-                <p>This is a customized sample report reflecting your presence and potential to stand out outside your immediate zip code.</p>
-                <button class="btn" onclick="alert('Email sent to client!')">Send Email Sample</button>
-            `;
-            modal.style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById('report-modal').style.display = "none";
-        }
-
-        function toggleRecommendations() {
-            const sec = document.getElementById('seo-rec-section');
-            if (sec) sec.classList.toggle('hidden');
-        }
-
-        function toggleFinance() {
-            const report = document.getElementById('finance-report');
-            const btn = document.getElementById('toggle-finance-btn');
-            if (report.classList.contains('hidden')) {
-                report.classList.remove('hidden');
-                btn.innerText = 'Hide Financial Report';
-                btn.classList.add('btn-danger');
-            } else {
-                report.classList.add('hidden');
-                btn.innerText = 'View Hidden Financial Report';
-                btn.classList.remove('btn-danger');
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4 (Proj)'],
+                datasets: [
+                    {
+                        label: 'Gross Revenue',
+                        data: [12000, 19000, 25000, 32000],
+                        borderColor: '#c89f53',
+                        backgroundColor: 'rgba(200, 159, 83, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Operational Costs',
+                        data: [8000, 11000, 13000, 15000],
+                        borderColor: '#8c5a35',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Net Growth / Profit',
+                        data: [4000, 8000, 12000, 17000],
+                        borderColor: '#2b7a3e',
+                        backgroundColor: 'rgba(43, 122, 62, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#e8dcc8', font: { family: 'Segoe UI' } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#423023' },
+                        ticks: { color: '#9e8568', font: { family: 'Segoe UI' } }
+                    },
+                    x: {
+                        grid: { color: '#423023' },
+                        ticks: { color: '#9e8568', font: { family: 'Segoe UI' } }
+                    }
+                }
             }
-        }
+        });
+    }
+</script>
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('report-modal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
 </body>
 </html>
-
-
