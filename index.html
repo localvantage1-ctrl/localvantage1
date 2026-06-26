@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Vantage - Executive CRM & Financial Ledger</title>
+    <!-- Chart.js Framework -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&callback=initApplication" async defer></script>
     <style>
         :root {
@@ -284,11 +286,13 @@
     </header>
 
     <div class="grid-layout">
+        <!-- Live Map Interface Frame -->
         <div class="panel">
             <div class="section-title">Google Maps Operational Overlay</div>
             <div id="google-map-view"></div>
         </div>
 
+        <!-- Dynamic Registry Directory -->
         <div class="panel">
             <div class="section-title">
                 <span>Enterprise Registry Target Index</span>
@@ -309,6 +313,7 @@
         </div>
     </div>
 
+    <!-- Interactive 52-Week Financial Ledger Suite -->
     <div class="panel">
         <div class="section-title">52-Week Financial Ledger Framework (YTD Accrual Scope)</div>
         
@@ -316,7 +321,8 @@
             <div>
                 <label style="font-size:12px; color:var(--text-muted);">Simulated Calendar Progress Interval:</label>
                 <select id="current-week-filter" onchange="updateCurrentWeekViewport()">
-                    </select>
+                    <!-- Populated dynamically via state scripts -->
+                </select>
             </div>
             <button class="btn-gold" style="margin-left:auto;" onclick="openContractModal()">+ Provision Individual Contract Asset</button>
         </div>
@@ -342,6 +348,7 @@
     </div>
 </div>
 
+<!-- Ledger Configuration / Weekly Deep-Dive Modal Frame -->
 <div class="modal" id="weekDetailsModal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal('weekDetailsModal')">&times;</span>
@@ -362,12 +369,14 @@
 
         <h3 style="font-size:14px; color:var(--accent-gold); margin-bottom:5px; text-transform:uppercase;">Monday - Friday Operational Progress Ledger</h3>
         <div class="day-grid" id="day-grid-container">
-            </div>
+            <!-- Rendered programmatically -->
+        </div>
         
         <button class="btn-gold" style="margin-top:20px; width:100%;" onclick="closeModal('weekDetailsModal')">Finalize Parameters and Commit Changes</button>
     </div>
 </div>
 
+<!-- Contract Provisioning Modal Frame -->
 <div class="modal" id="contractModal">
     <div class="modal-content" style="max-width:500px;">
         <span class="close-btn" onclick="closeModal('contractModal')">&times;</span>
@@ -391,6 +400,7 @@
     </div>
 </div>
 
+<!-- Google Docs Output Document Workspace Modal Frame -->
 <div class="modal" id="docModal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal('docModal')">&times;</span>
@@ -405,19 +415,19 @@
 <script>
     let mapInstance;
     let chartInstance;
-    let activeSystemTrackingWeek = 12; // Dynamic initial tracking horizon window limit scalar
+    let globalInfoWindow;
+    let activeSystemTrackingWeek = 12; 
     
-    // Core App State Databases
     const activeContractsRegistry = [
-        { name: "Apex Auto Body", retainer: 1500, startWeek: 1, mgr: "John Davis", phone: "(208) 555-0192", email: "jdavis@apexautobody.com", addr: "123 Main St, Boise, ID" },
-        { name: "Boise Valley Plumbing", retainer: 1200, startWeek: 1, mgr: "Sarah Jenkins", phone: "(208) 555-0143", email: "s.jenkins@bvplumbing.org", addr: "745 Maple Rd, Meridian, ID" },
-        { name: "Star Cafe & Bakery", retainer: 900, startWeek: 4, mgr: "Mateo Silva", phone: "(208) 555-0177", email: "mateo@starcafe.com", addr: "902 Idaho St, Boise, ID" }
+        { name: "Apex Auto Body", retainer: 1500, startWeek: 1, mgr: "John Davis", phone: "(208) 555-0192", email: "jdavis@apexautobody.com", addr: "123 Main St, Boise, ID", lat: 43.6150, lng: -116.2023 },
+        { name: "Boise Valley Plumbing", retainer: 1200, startWeek: 1, mgr: "Sarah Jenkins", phone: "(208) 555-0143", email: "s.jenkins@bvplumbing.org", addr: "745 Maple Rd, Meridian, ID", lat: 43.6121, lng: -116.3915 },
+        { name: "Star Cafe & Bakery", retainer: 900, startWeek: 4, mgr: "Mateo Silva", phone: "(208) 555-0177", email: "mateo@starcafe.com", addr: "902 Idaho St, Boise, ID", lat: 43.6172, lng: -116.2110 }
     ];
 
     const weeklyPerformanceLedgerDB = {};
     const globalLeadPoolDB = [];
+    const mapMarkersArray = [];
 
-    // Initialize ledger metrics data blocks cleanly
     function configurePerformanceDatabaseBaselines() {
         for (let w = 1; w <= 52; w++) {
             weeklyPerformanceLedgerDB[w] = {
@@ -442,6 +452,9 @@
         
         for (let i = 0; i < 20; i++) {
             let nameRef = boilerplateNames[i % boilerplateNames.length] + ` & Co`;
+            let varianceFactorLat = (i * 0.009) * (i % 2 === 0 ? 1 : -1);
+            let varianceFactorLng = (i * 0.012) * (i % 3 === 0 ? 1 : -1);
+
             globalLeadPoolDB.push({
                 name: nameRef,
                 retainer: 1000 + (i * 100),
@@ -450,6 +463,8 @@
                 phone: `(208) 555-${1000 + i}`,
                 email: `contact@${nameRef.toLowerCase().replace(/[^a-z]/g, '')}.com`,
                 addr: `${500 + i} Capitol Blvd, Boise, ID`,
+                lat: 43.6150 + varianceFactorLat,
+                lng: -116.2023 + varianceFactorLng,
                 isLead: true
             });
         }
@@ -513,7 +528,6 @@
         for (let w = 1; w <= activeSystemTrackingWeek; w++) {
             labelsArray.push(`Wk ${w}`);
             
-            // Accruing Monthly Retainer Infrastructure Calculation Logic per active anchor
             let weeklyGrossAccrual = 0;
             activeContractsRegistry.forEach(contract => {
                 if (w >= contract.startWeek) {
@@ -532,7 +546,6 @@
             netProfitArray.push(Math.round(currentWeekNet));
         }
 
-        // Project updates directly onto physical KPI display targets
         document.getElementById("kpi-ytd-gross").innerText = `$${cumulativeYTDGross.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById("kpi-ytd-net").innerText = `$${(cumulativeYTDGross - cumulativeYTDOverhead).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         
@@ -551,9 +564,9 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Accrued Gross Target Revenue Stream', data: gross, borderColor: '#c5a059', backgroundColor: 'transparent', borderWidth: 2, tension: 0.15 },
-                    { label: 'Overhead Operational Variable Expenses', data: costs, borderColor: '#8b2635', backgroundColor: 'transparent', borderWidth: 1.5, tension: 0.15 },
-                    { label: 'Realized Net Revenue Yield Position', data: net, borderColor: '#4caf50', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.15 }
+                    { label: 'Accrued Gross Revenue', data: gross, borderColor: '#c5a059', backgroundColor: 'transparent', borderWidth: 2, tension: 0.15 },
+                    { label: 'Overhead Expenses', data: costs, borderColor: '#8b2635', backgroundColor: 'transparent', borderWidth: 1.5, tension: 0.15 },
+                    { label: 'Net Revenue Yield', data: net, borderColor: '#4caf50', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.15 }
                 ]
             },
             options: {
@@ -632,10 +645,15 @@
             mgr: "Assigned Executive Administrator",
             phone: "(208) 555-AUTO",
             email: "admin@localvantage.internal",
-            addr: "Boise Corporate Domain Space Corridor"
+            addr: "Boise Corporate Domain Space Corridor",
+            lat: 43.6150 + (Math.random() * 0.02 - 0.01),
+            lng: -116.2023 + (Math.random() * 0.02 - 0.01)
         });
 
         closeModal("contractModal");
+        buildLeadPoolRegistry();
+        renderLeadDirectoryTable();
+        renderMapInterface();
         recalculateAndSynchronizeLedgerWorkspace();
     }
 
@@ -689,19 +707,18 @@
         ];
 
         mapInstance = new google.maps.Map(document.getElementById("google-map-view"), {
-            zoom: 12,
+            zoom: 11,
             center: defaultBoiseCoordinates,
             styles: customizedDarkMapStyles,
             disableDefaultUI: false
         });
 
-        // Scatter interactive operational anchor pins across quadrant vectors
+        globalInfoWindow = new google.maps.InfoWindow();
+        mapMarkersArray.length = 0;
+
         globalLeadPoolDB.forEach((lead, idx) => {
-            let varianceFactorLat = (idx * 0.004) * (idx % 2 === 0 ? 1 : -1);
-            let varianceFactorLng = (idx * 0.006) * (idx % 3 === 0 ? 1 : -1);
-            
             const marker = new google.maps.Marker({
-                position: { lat: 43.6150 + varianceFactorLat, lng: -116.2023 + varianceFactorLng },
+                position: { lat: lead.lat, lng: lead.lng },
                 map: mapInstance,
                 title: lead.name,
                 label: { text: String(idx + 1), color: "#121212", fontWeight: "bold", fontSize: "10px" },
@@ -714,11 +731,43 @@
                     scale: 12
                 }
             });
+
+            marker.addListener("click", () => {
+                triggerMarkerWindow(marker, lead);
+            });
+
+            mapMarkersArray.push(marker);
         });
     }
 
+    function triggerMarkerWindow(marker, lead) {
+        let contentStr = `
+            <div style="color:#121212; font-family:sans-serif; padding:5px;">
+                <h4 style="margin:0 0 5px 0; color:#2a3a4a;">${lead.name}</h4>
+                <p style="margin:0 0 3px 0; font-size:12px;"><b>Manager:</b> ${lead.mgr}</p>
+                <p style="margin:0 0 3px 0; font-size:12px;"><b>Address:</b> ${lead.addr}</p>
+                <p style="margin:0; font-size:12px;"><b>Est. Retainer:</b> $${lead.retainer}/mo</p>
+            </div>`;
+        globalInfoWindow.setContent(contentStr);
+        globalInfoWindow.open(mapInstance, marker);
+    }
+
+    // Direct Lead-to-Map Focus Engine Interaction Execution
     function forceManualSelectionFocus(index) {
-        alert(`Focusing interface coordinate sets associated with target asset index descriptor #${index + 1}: ${globalLeadPoolDB[index].name}`);
+        const lead = globalLeadPoolDB[index];
+        const marker = mapMarkersArray[index];
+        
+        if (mapInstance && marker) {
+            // Smoothly fly over and center on the localized layout coordinates
+            mapInstance.panTo(marker.getPosition());
+            mapInstance.setZoom(14);
+            
+            // Fire information workspace display context overlay directly on the target
+            triggerMarkerWindow(marker, lead);
+            
+            // Visual viewport layout update context confirmation
+            document.getElementById("google-map-view").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 
     function toggleSelectAll() {
