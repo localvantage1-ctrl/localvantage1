@@ -2,295 +2,664 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Business Analytics & Lead Generation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Vantage - Executive Dashboard</title>
+    <!-- Chart.js for 52-Week Financial Ledger -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #121824;
-            --card-bg: #1c2536;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent-blue: #3b82f6;
-            --danger-red: #ef4444;
-            --success-green: #22c55e;
-            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --bg-dark: #121212;
+            --panel-bg: #1a1a1a;
+            --accent-gold: #c5a059;
+            --accent-blue: #2a3a4a;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #2d2d2d;
+            
+            /* Business Specific Themes */
+            --color-apex: #8b2635;
+            --color-boise: #1b4965;
+            --color-star: #5c3d2e;
         }
-        body {
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
             background-color: var(--bg-dark);
-            font-family: var(--font-family);
-            color: var(--text-primary);
+            color: var(--text-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+            width: 100%;
+            max-width: 1280px;
+            background: linear-gradient(145deg, #151515, #1e1e1e);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: 300px 1fr;
+
+        header {
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: var(--accent-gold);
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            color: var(--accent-gold);
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Dashboard Grid Layout */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
             }
         }
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h2 {
-            margin-top: 0;
-            font-size: 1.25rem;
-            color: var(--accent-blue);
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #334155;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        li:hover {
-            background-color: var(--accent-blue);
-            color: white;
-        }
-        #map-view {
+
+        /* Interactive Map Area */
+        .map-container {
             height: 300px;
-            background-color: #334155;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: radial-gradient(circle, #252525 10%, #181818 90%);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
         }
-        table {
+
+        .map-container:active {
+            cursor: grabbing;
+        }
+
+        .map-marker {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border: 2px solid var(--text-light);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+
+        .map-marker:hover {
+            transform: scale(1.2);
+        }
+
+        /* Lead Directory Styles */
+        .lead-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
-        th, td {
-            text-align: left;
+
+        .lead-table th, .lead-table td {
             padding: 12px;
-            border-bottom: 1px solid #334155;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
-        th {
-            color: var(--text-secondary);
+
+        .lead-table th {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
         }
-        .btn {
+
+        .lead-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .lead-row:hover {
+            background-color: rgba(197, 160, 89, 0.05);
+        }
+
+        .lead-name {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .lead-name:hover {
+            text-decoration: underline;
+        }
+
+        .lead-details-row {
+            background-color: #141414;
+            display: none;
+        }
+
+        .details-container {
+            padding: 15px;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        /* Financial Ledger & Form Controls */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .ledger-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
             background-color: var(--accent-blue);
-            color: white;
-            padding: 8px 16px;
-            border: none;
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            font-size: 13px;
+            transition: background-color 0.2s, border-color 0.2s;
         }
-        .btn-danger { background-color: var(--danger-red); }
-        .btn-success { background-color: var(--success-green); }
-        .hidden { display: none; }
-        
-        /* Modal for Sample Report */
+
+        button:hover {
+            background-color: #3a4a5a;
+            border-color: var(--accent-gold);
+        }
+
+        button.btn-gold {
+            background-color: var(--accent-gold);
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+
+        button.btn-gold:hover {
+            background-color: #dfb668;
+        }
+
+        select, input {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        /* Modal Viewers */
         .modal {
             display: none;
             position: fixed;
-            z-index: 10;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            overflow: auto;
+            background-color: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
+
         .modal-content {
-            background-color: var(--card-bg);
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #334155;
-            width: 80%;
-            max-width: 800px;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--accent-gold);
             border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            padding: 25px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            position: relative;
         }
-        .close {
-            color: var(--text-secondary);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: var(--text-muted);
             cursor: pointer;
+            font-size: 20px;
         }
-        .close:hover { color: var(--text-primary); }
+
+        .close-btn:hover {
+            color: var(--text-light);
+        }
+
+        .doc-format {
+            background-color: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 2px;
+            font-family: 'Times New Roman', Times, serif;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div>
-            <div class="card">
-                <h2>Lead Directory</h2>
-                <ul id="lead-list">
-                    <li onclick="showDetails('Apex Auto Body', 'Automotive', 'Meridian', 14, 42, '#1E293B', 'https://via.placeholder.com/300x150?text=Apex+Auto+Body')">Apex Auto Body</li>
-                    <li onclick="showDetails('Boise Valley Plumbing', 'Home Services', 'Boise', 2, 85, '#0F172A', 'https://via.placeholder.com/300x150?text=Boise+Valley+Plumbing')">Boise Valley Plumbing</li>
-                    <li onclick="showDetails('Star Cafe & Bakery', 'Hospitality', 'Star', 8, 60, '#334155', 'https://via.placeholder.com/300x150?text=Star+Cafe+Bakery')">Star Cafe & Bakery</li>
-                </ul>
+
+<div class="container">
+    <header>
+        <h1>Local Vantage Workspace</h1>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label for="region-select" style="font-size: 13px; color: var(--text-muted);">Region:</label>
+            <select id="region-select" style="width: 150px;">
+                <option value="boise">Boise Metro</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="grid-layout">
+        <!-- Interactive Map Panel -->
+        <div class="panel">
+            <div class="section-title">Regional Map View (Movable)</div>
+            <div class="map-container" id="map">
+                <!-- Simulated Google Map Layers with Numbered Markers -->
+                <div class="map-marker" style="top: 35%; left: 25%;" onclick="toggleLeadDetails('apex')">1</div>
+                <div class="map-marker" style="top: 60%; left: 55%;" onclick="toggleLeadDetails('boise')">2</div>
+                <div class="map-marker" style="top: 20%; left: 75%;" onclick="toggleLeadDetails('star')">3</div>
             </div>
         </div>
-        <div>
-            <div class="card" style="margin-bottom: 20px;">
-                <h2>Regional Map View & Rankings</h2>
-                <div id="map-view">
-                    <span>Map visualization showing 1-10 area rankings</span>
-                </div>
+
+        <!-- Target Lead Directory Panel -->
+        <div class="panel">
+            <div class="section-title">
+                <span>Target Lead Directory</span>
+                <button class="btn-gold" onclick="generateBulkEmailDoc()">Add to Email List</button>
             </div>
-            <div class="card" id="details-panel">
-                <h2>Business Detail Report</h2>
-                <div id="business-info">
-                    <p>Select a business from the directory to view details.</p>
-                </div>
-            </div>
-            <div class="card" style="margin-top: 20px;">
-                <h2>Won Contracts & Revenue</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client Name</th>
-                            <th>Monthly Retainer</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="crm-table">
-                        <tr>
-                            <td>Nampa Logistics</td>
-                            <td>$1,500</td>
-                            <td>Active</td>
-                        </tr>
-                        <tr>
-                            <td>Caldwell Tire</td>
-                            <td>$1,200</td>
-                            <td>Active</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class="btn" style="margin-top: 15px;">Add Contract</button>
-                <button class="btn btn-danger" id="toggle-finance-btn" onclick="toggleFinance()">View Hidden Financial Report</button>
-            </div>
-            <div class="card hidden" id="finance-report" style="margin-top: 20px;">
-                <h2>Hidden Cost & Profit Report</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client Name</th>
-                            <th>Monthly Revenue</th>
-                            <th>Monthly Costs</th>
-                            <th>Net Profit</th>
-                            <th>Year End (12/31)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Nampa Logistics</td>
-                            <td>$1,500</td>
-                            <td>$500</td>
-                            <td>$1,000</td>
-                            <td>$12,000</td>
-                        </tr>
-                        <tr>
-                            <td>Caldwell Tire</td>
-                            <td>$1,200</td>
-                            <td>$400</td>
-                            <td>$800</td>
-                            <td>$9,600</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="lead-table">
+                <thead>
+                    <tr>
+                        <th width="40"><input type="checkbox" id="select-all-leads" onclick="toggleSelectAll()"></th>
+                        <th>Business / Details</th>
+                        <th>Size / Win Prob</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lead 1 -->
+                    <tr class="lead-row" onclick="checkRow(event, 'apex')">
+                        <td><input type="checkbox" class="lead-checkbox" value="apex"></td>
+                        <td>
+                            <a href="https://www.apexautobodyboise.com" target="_blank" class="lead-name">Apex Auto Body</a><br>
+                            <small style="color: var(--text-muted);">Automotive Repair | 123 Main St, Boise | (208) 555-0192</small>
+                        </td>
+                        <td>
+                            <span style="font-size: 13px;">$1.2M - $2.5M</span><br>
+                            <small style="color: #4caf50;">Prob: 85%</small>
+                        </td>
+                    </tr>
+                    <tr class="lead-details-row" id="details-apex">
+                        <td colspan="3">
+                            <div class="details-container">
+                                <strong>Contact Name:</strong> John Davis (General Manager)<br>
+                                <strong>Email:</strong> jdavis@apexautobody.com<br>
+                                <strong>Website Analysis:</strong> Outdated legacy site, completely lacking an automated appointment framework or modern optimization strategy.
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Lead 2 -->
+                    <tr class="lead-row" onclick="checkRow(event, 'boise')">
+                        <td><input type="checkbox" class="lead-checkbox" value="boise"></td>
+                        <td>
+                            <a href="https://www.boisevalleyplumbing.com" target="_blank" class="lead-name">Boise Valley Plumbing</a><br>
+                            <small style="color: var(--text-muted);">Contracting & Services | 745 Maple Rd, Meridian | (208) 555-0143</small>
+                        </td>
+                        <td>
+                            <span style="font-size: 13px;">$800k - $1.5M</span><br>
+                            <small style="color: #ff9800;">Prob: 62%</small>
+                        </td>
+                    </tr>
+                    <tr class="lead-details-row" id="details-boise">
+                        <td colspan="3">
+                            <div class="details-container">
+                                <strong>Contact Name:</strong> Sarah Jenkins (Operations Head)<br>
+                                <strong>Email:</strong> s.jenkins@bvplumbing.org<br>
+                                <strong>Website Analysis:</strong> Basic informative landing page only. No interactive service dispatch pipelines built out yet.
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Lead 3 -->
+                    <tr class="lead-row" onclick="checkRow(event, 'star')">
+                        <td><input type="checkbox" class="lead-checkbox" value="star"></td>
+                        <td>
+                            <a href="https://www.starcafeandbakery.com" target="_blank" class="lead-name">Star Cafe & Bakery</a><br>
+                            <small style="color: var(--text-muted);">Hospitality | 902 Idaho St, Boise | (208) 555-0177</small>
+                        </td>
+                        <td>
+                            <span style="font-size: 13px;">$500k - $900k</span><br>
+                            <small style="color: #4caf50;">Prob: 78%</small>
+                        </td>
+                    </tr>
+                    <tr class="lead-details-row" id="details-star">
+                        <td colspan="3">
+                            <div class="details-container">
+                                <strong>Contact Name:</strong> Mateo Silva (Owner)<br>
+                                <strong>Email:</strong> mateo@starcafe.com<br>
+                                <strong>Website Analysis:</strong> Relying strictly on third-party social business profile pages. Missing primary host domains completely.
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Modal for Sample Report -->
-    <div id="report-modal" class="modal">
-        <div class="modal-content" id="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <div id="modal-body"></div>
+    <!-- 52-Week Financial Ledger Panel -->
+    <div class="panel">
+        <div class="section-title">52-Week Financial Ledger (Rolling Evaluation Analytics)</div>
+        <div class="chart-container">
+            <canvas id="financialChart"></canvas>
+        </div>
+        <div class="ledger-controls">
+            <div>
+                <label style="font-size: 11px; color: var(--text-muted);">Select Client Account</label>
+                <select id="control-client">
+                    <option value="Apex Auto Body">Apex Auto Body</option>
+                    <option value="Boise Valley Plumbing">Boise Valley Plumbing</option>
+                    <option value="Star Cafe & Bakery">Star Cafe & Bakery</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 11px; color: var(--text-muted);">Retainer Fee ($/Mo)</label>
+                <input type="number" id="control-retainer" value="1500">
+            </div>
+            <div style="display: flex; align-items: flex-end; gap: 5px;">
+                <button onclick="modifyContract(true)">+ Add Contract</button>
+                <button onclick="modifyContract(false)" style="background-color: #5a2a2a;">- Drop Contract</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        let currentBusiness = null;
-        function showDetails(name, type, location, rank, seo, color, picUrl) {
-            currentBusiness = { name, type, location, rank, seo, color, picUrl };
-            const info = document.getElementById('business-info');
-            info.innerHTML = `
-                <p><strong>Business Name:</strong> ${name}</p>
-                <p><strong>Type:</strong> ${type}</p>
-                <p><strong>Location:</strong> ${location}, ID</p>
-                <p><strong>Current Rank:</strong> #${rank} in local map pack</p>
-                <p><strong>SEO Score:</strong> ${seo}/100</p>
-                <button class="btn" onclick="openModal()">View Sample Report</button>
-                <button class="btn btn-success" onclick="toggleRecommendations()">Toggle SEO Recommendations</button>
-                <div id="seo-rec-section" class="hidden" style="margin-top:15px; padding:10px; background-color:#0f172a; border-left:4px solid #3b82f6;">
-                    <h4>Internal Ranking Recommendations</h4>
-                    <ul>
-                        <li>Fix NAP (Name, Address, Phone) inconsistencies across the web.</li>
-                        <li>Embed Google Map on the homepage.</li>
-                        <li>Increase review velocity by 5 new reviews/month.</li>
-                        <li>Add local structured data (Schema markup) to the website.</li>
-                    </ul>
-                </div>
-            `;
+<!-- Business Deep-Dive Insight Modal (Data Point Triggers) -->
+<div class="modal" id="dataModal">
+    <div class="modal-content" id="modal-container">
+        <span class="close-btn" onclick="closeModal('dataModal')">&times;</span>
+        <h2 id="modal-title" style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;"></h2>
+        <div id="modal-body" style="font-size: 14px; line-height: 1.6;"></div>
+    </div>
+</div>
+
+<!-- Google Docs Output Preview Modal (Bulk BCC Outbox Compilation) -->
+<div class="modal" id="docModal">
+    <div class="modal-content" style="max-width: 700px;">
+        <span class="close-btn" onclick="closeModal('docModal')">&times;</span>
+        <h3 style="color: #2b579a; display: flex; align-items: center; gap: 8px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#2b579a"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Google Docs Compilation Layout Workspace
+        </h3>
+        <p style="color: #666; font-size: 12px; margin-top: 5px;">Automated distribution manifests. System components apply standard hidden blind carbon copy routing array protocols.</p>
+        <div class="doc-format" id="doc-content"></div>
+    </div>
+</div>
+
+<script>
+    // System Core Database Fields
+    const businessRegistry = {
+        'apex': { name: 'Apex Auto Body', mgr: 'John Davis', phone: '(208) 555-0192', email: 'jdavis@apexautobody.com', addr: '123 Main St, Boise, ID', color: 'var(--color-apex)', active: true, retainer: 1500 },
+        'boise': { name: 'Boise Valley Plumbing', mgr: 'Sarah Jenkins', phone: '(208) 555-0143', email: 's.jenkins@bvplumbing.org', addr: '745 Maple Rd, Meridian, ID', color: 'var(--color-boise)', active: true, retainer: 1200 },
+        'star': { name: 'Star Cafe & Bakery', mgr: 'Mateo Silva', phone: '(208) 555-0177', email: 'mateo@starcafe.com', addr: '902 Idaho St, Boise, ID', color: 'var(--color-star)', active: false, retainer: 900 }
+    };
+
+    let chartInstance;
+    
+    // Generate initial 52 weeks historical ledger datasets
+    function generateLedgerData() {
+        let labels = Array.from({length: 52}, (_, i) => `Wk ${i + 1}`);
+        let grossRevenue = [];
+        let operationalCosts = [];
+        let netProfit = [];
+
+        for(let w = 1; w <= 52; w++) {
+            let weeklyGross = 0;
+            // Iterate over all active contracts and add their weekly value (Monthly / 4)
+            Object.values(businessRegistry).forEach(b => {
+                if(b.active) weeklyGross += (b.retainer * 12) / 52;
+            });
+
+            let baseCosts = 1200 + (Math.sin(w / 2) * 150); // Simulated baseline fluctuations
+            grossRevenue.push(Math.round(weeklyGross));
+            operationalCosts.push(Math.round(baseCosts));
+            netProfit.push(Math.round(weeklyGross - baseCosts));
         }
 
-        function openModal() {
-            if (!currentBusiness) return;
-            const modal = document.getElementById('report-modal');
-            const modalBody = document.getElementById('modal-body');
-            const modalContent = document.getElementById('modal-content');
-            modalContent.style.borderColor = currentBusiness.color;
-            modalBody.innerHTML = `
-                <h2 style="color: ${currentBusiness.color}; border-bottom: 2px solid ${currentBusiness.color}; padding-bottom: 10px;">Sample Report: ${currentBusiness.name}</h2>
-                <img src="${currentBusiness.picUrl}" alt="${currentBusiness.name}" style="max-width: 100%; border-radius: 4px; margin-bottom: 15px;">
-                <p><strong>Location:</strong> ${currentBusiness.location}, ID</p>
-                <p><strong>Map Ranking:</strong> #${currentBusiness.rank} for local search terms</p>
-                <p>This is a customized sample report reflecting your presence and potential to stand out outside your immediate zip code.</p>
-                <button class="btn" onclick="alert('Email sent to client!')">Send Email Sample</button>
-            `;
-            modal.style.display = "block";
-        }
+        return { labels, grossRevenue, operationalCosts, netProfit };
+    }
 
-        function closeModal() {
-            document.getElementById('report-modal').style.display = "none";
-        }
+    // Render Ledger Framework
+    function initChart() {
+        const data = generateLedgerData();
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    { label: 'Gross Revenue', data: data.grossRevenue, borderColor: '#c5a059', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1 },
+                    { label: 'Operational Costs', data: data.operationalCosts, borderColor: '#4a5a6a', backgroundColor: 'transparent', borderWidth: 1.5, tension: 0.1 },
+                    { label: 'Net Profit / Growth', data: data.netProfit, borderColor: '#4caf50', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#e0e0e0', font: { size: 11 } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#a0a0a0', font: { size: 9 } }, grid: { color: '#2d2d2d' } },
+                    y: { ticks: { color: '#a0a0a0' }, grid: { color: '#2d2d2d' } }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        triggerDataPointModal(index + 1);
+                    }
+                }
+            }
+        });
+    }
 
-        function toggleRecommendations() {
-            const sec = document.getElementById('seo-rec-section');
-            if (sec) sec.classList.toggle('hidden');
-        }
-
-        function toggleFinance() {
-            const report = document.getElementById('finance-report');
-            const btn = document.getElementById('toggle-finance-btn');
-            if (report.classList.contains('hidden')) {
-                report.classList.remove('hidden');
-                btn.innerText = 'Hide Financial Report';
-                btn.classList.add('btn-danger');
+    // Append/Drop active contracts dynamically
+    function modifyContract(isAdding) {
+        const selectedName = document.getElementById('control-client').value;
+        const retainerVal = parseInt(document.getElementById('control-retainer').value) || 0;
+        
+        let targetKey = Object.keys(businessRegistry).find(key => businessRegistry[key].name === selectedName);
+        
+        if (targetKey) {
+            if (isAdding) {
+                businessRegistry[targetKey].active = true;
+                businessRegistry[targetKey].retainer = retainerVal;
             } else {
-                report.classList.add('hidden');
-                btn.innerText = 'View Hidden Financial Report';
-                btn.classList.remove('btn-danger');
+                // Drop contract removes retainer fee calculation completely
+                businessRegistry[targetKey].active = false;
             }
+            
+            // Recalculate and update the running dashboard ledger
+            const updated = generateLedgerData();
+            chartInstance.data.datasets[0].data = updated.grossRevenue;
+            chartInstance.data.datasets[1].data = updated.operationalCosts;
+            chartInstance.data.datasets[2].data = updated.netProfit;
+            chartInstance.update();
+        }
+    }
+
+    // Toggle Lead Directory Dropdown panels manually
+    function toggleLeadDetails(key) {
+        const row = document.getElementById(`details-${key}`);
+        row.style.display = (row.style.display === 'table-row') ? 'none' : 'table-row';
+    }
+
+    // Row selection filter wrapper logic
+    function checkRow(e, key) {
+        if (e.target.type !== 'checkbox' && e.target.tagName !== 'A') {
+            toggleLeadDetails(key);
+        }
+    }
+
+    function toggleSelectAll() {
+        const master = document.getElementById('select-all-leads');
+        document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    // Pull up custom themed deep dive profiles based on chart week clicks
+    function triggerDataPointModal(weekNum) {
+        const modal = document.getElementById('dataModal');
+        const container = document.getElementById('modal-container');
+        const title = document.getElementById('modal-title');
+        const body = document.getElementById('modal-body');
+
+        title.innerText = `Active Contracts Ledger Framework — Week ${weekNum}`;
+        
+        let htmlContent = `<p style="margin-bottom: 15px; color: var(--text-muted);">Running active parameter details evaluated during operations tracking interval metrics:</p>`;
+        
+        Object.keys(businessRegistry).forEach(key => {
+            const b = businessRegistry[key];
+            if (b.active) {
+                htmlContent += `
+                    <div style="background-color: ${b.color}; color: #ffffff; padding: 15px; border-radius: 4px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        <strong style="font-size: 16px;">${b.name}</strong><br>
+                        <span style="font-size: 13px; opacity: 0.9;">
+                            Manager: ${b.mgr} | Phone: ${b.phone}<br>
+                            Address: ${b.addr}<br>
+                            Current Rolling Retainer Commitment Rate: <strong>$${b.retainer}/month</strong>
+                        </span>
+                    </div>`;
+            }
+        });
+
+        body.innerHTML = htmlContent;
+        modal.style.display = 'flex';
+    }
+
+    // Compile Selected Target Entities into a structured document workspace element
+    function generateBulkEmailDoc() {
+        const checkboxes = document.querySelectorAll('.lead-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('Please select at least one enterprise directory lead record checkbox entry.');
+            return;
         }
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('report-modal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
+        const docModal = document.getElementById('docModal');
+        const docContent = document.getElementById('doc-content');
+        
+        let docHtml = `
+            <div style="border-bottom: 2px solid #2b579a; padding-bottom: 10px; margin-bottom: 20px;">
+                <h1 style="font-size: 22px; margin: 0; color: #2b579a;">Outreach Manifest & Email Draft Framework</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 13px;">Compiled on: ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <div style="background-color: #f3f3f3; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 25px; font-size: 13px;">
+                <strong>BCC Outbox Matrix Array Routing Index:</strong><br>
+                <span style="color: #0066cc;">`;
+
+        let emailList = [];
+        checkboxes.forEach(cb => {
+            const b = businessRegistry[cb.value];
+            if (b) emailList.push(`${b.name} &lt;${b.email}&gt;`);
+        });
+        
+        docHtml += emailList.join('; ') + `</span></div>`;
+
+        // Loop through each checked entity item block and dynamically build tailored script blocks
+        checkboxes.forEach(cb => {
+            const b = businessRegistry[cb.value];
+            docHtml += `
+                <div style="margin-bottom: 35px; border-bottom: 1px dashed #ccc; padding-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 8px;">Target Lead Account Parameters: ${b.name}</h3>
+                    <table style="width: 100%; font-size: 12px; color: #555; margin-bottom: 12px; background: #fafafa; border: 1px solid #eee;">
+                        <tr><td style="padding: 5px; width: 120px;"><strong>Primary Point Contact:</strong></td><td style="padding: 5px;">${b.mgr}</td></tr>
+                        <tr><td style="padding: 5px;"><strong>Direct Office Line:</strong></td><td style="padding: 5px;">${b.phone}</td></tr>
+                        <tr><td style="padding: 5px;"><strong>Physical Headquarters:</strong></td><td style="padding: 5px;">${b.addr}</td></tr>
+                    </table>
+                    
+                    <div style="border: 1px solid #ccc; padding: 15px; background: #fff; border-left: 4px solid #2b579a; font-size: 14px; color: #222; line-height: 1.5;">
+                        <p><strong>Subject:</strong> Optimization Architecture Proposal / Local Functional Scale-Out Strategy</p><br>
+                        <p>Dear ${b.mgr},</p><br>
+                        <p>I was reviewing the operational posture for <strong>${b.name}</strong> located at ${b.addr}. When evaluating your direct interface footprints across the Boise market space, it looks like there are major areas to modernize your digital platforms to boost capture automation and tracking logic.</p><br>
+                        <p>I would appreciate a brief call this week via ${b.phone} or directly back through this channel to talk through our structured optimization services.</p><br>
+                        <p>Best regards,<br>[Sales and Operations Management Matrix Lead]</p>
+                    </div>
+                </div>`;
+        });
+
+        docContent.innerHTML = docHtml;
+        docModal.style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // Standard baseline initialization triggers
+    window.onload = function() {
+        initChart();
+        
+        // Simple mock click-and-drag logic for map frame interaction
+        const map = document.getElementById('map');
+        let isDown = false; let startX, startY, scrollLeft, scrollTop;
+        
+        map.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - map.offsetLeft;
+            startY = e.pageY - map.offsetTop;
+        });
+        map.addEventListener('mouseleave', () => isDown = false);
+        map.addEventListener('mouseup', () => isDown = false);
+        map.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+        });
+    };
+</script>
+
 </body>
 </html>
