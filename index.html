@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Vantage - Executive Map & Lead Engine</title>
-    <!-- Chart.js for 52-Week Financial Ledger -->
+    <title>Local Vantage - Executive CRM & Financial Ledger</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Maps API (Using Standard Maps Loading Script Platform) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&callback=initApplication" async defer></script>
     <style>
         :root {
@@ -17,11 +15,7 @@
             --text-light: #e0e0e0;
             --text-muted: #a0a0a0;
             --border-color: #2d2d2d;
-            
-            /* Custom Lead Color Scheme Elements */
-            --color-prime: #8b2635;
-            --color-secondary: #1b4965;
-            --color-tertiary: #5c3d2e;
+            --success-green: #4caf50;
         }
 
         * {
@@ -66,15 +60,19 @@
             letter-spacing: 2px;
         }
 
-        .section-title {
-            color: var(--accent-gold);
-            font-size: 18px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .search-region-wrapper {
+            position: relative;
+            width: 260px;
+        }
+
+        .search-region-wrapper input {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
         }
 
         .grid-layout {
@@ -85,9 +83,7 @@
         }
 
         @media (max-width: 1024px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
+            .grid-layout { grid-template-columns: 1fr; }
         }
 
         .panel {
@@ -97,20 +93,19 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            margin-bottom: 25px;
         }
 
-        /* Real Google Map Interface Element Frame */
         #google-map-view {
             width: 100%;
-            height: 450px;
+            height: 400px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             background-color: #222;
         }
 
-        /* Directory Table Sizing Constraints */
         .directory-scroll {
-            max-height: 450px;
+            max-height: 400px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
             border-radius: 4px;
@@ -137,42 +132,33 @@
             z-index: 10;
         }
 
-        .lead-row {
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .lead-row { cursor: pointer; transition: background-color 0.2s; }
+        .lead-row:hover { background-color: rgba(197, 160, 89, 0.05); }
+        .lead-name { color: var(--accent-gold); text-decoration: none; font-weight: bold; }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .lead-row:hover {
-            background-color: rgba(197, 160, 89, 0.05);
-        }
-
-        .lead-name {
-            color: var(--accent-gold);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .lead-name:hover {
-            text-decoration: underline;
-        }
-
-        .lead-details-row {
-            background-color: #141414;
-            display: none;
-        }
-
-        .details-container {
+        .kpi-card {
+            background-color: #151515;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             padding: 15px;
-            border-left: 3px solid var(--accent-gold);
-            font-size: 13px;
+            text-align: center;
         }
 
-        /* Chart Elements */
-        .chart-container {
-            position: relative;
-            height: 280px;
-            width: 100%;
+        .kpi-value {
+            font-size: 22px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-top: 5px;
         }
+
+        .chart-container { position: relative; height: 320px; width: 100%; }
 
         button {
             background-color: var(--accent-blue);
@@ -185,31 +171,18 @@
             transition: background-color 0.2s, border-color 0.2s;
         }
 
-        button:hover {
-            background-color: #3a4a5a;
-            border-color: var(--accent-gold);
-        }
+        button:hover { background-color: #3a4a5a; border-color: var(--accent-gold); }
+        button.btn-gold { background-color: var(--accent-gold); color: var(--bg-dark); font-weight: bold; }
+        button.btn-gold:hover { background-color: #dfb668; }
 
-        button.btn-gold {
-            background-color: var(--accent-gold);
-            color: var(--bg-dark);
-            font-weight: bold;
-        }
-
-        button.btn-gold:hover {
-            background-color: #dfb668;
-        }
-
-        select, input {
+        input, select {
             background-color: var(--bg-dark);
             color: var(--text-light);
             border: 1px solid var(--border-color);
             padding: 8px;
             border-radius: 4px;
-            width: 100%;
         }
 
-        /* Modals and Google Doc Views */
         .modal {
             display: none;
             position: fixed;
@@ -227,11 +200,13 @@
             background-color: var(--panel-bg);
             border: 2px solid var(--accent-gold);
             border-radius: 8px;
-            max-width: 750px;
-            width: 90%;
+            max-width: 850px;
+            width: 95%;
             padding: 25px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.5);
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close-btn {
@@ -243,9 +218,7 @@
             font-size: 20px;
         }
 
-        .close-btn:hover {
-            color: var(--text-light);
-        }
+        .close-btn:hover { color: var(--text-light); }
 
         .doc-format {
             background-color: #fff;
@@ -253,10 +226,50 @@
             padding: 30px;
             border-radius: 2px;
             font-family: 'Times New Roman', Times, serif;
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             margin-top: 15px;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .day-box {
+            background: #222;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .day-box label {
+            font-size: 11px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .day-box textarea {
+            width: 100%;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-top: 5px;
+            padding: 5px;
+            font-size: 12px;
+            resize: none;
+            height: 60px;
         }
     </style>
 </head>
@@ -264,70 +277,126 @@
 
 <div class="container">
     <header>
-        <h1>Local Vantage Workspace Engine</h1>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="font-size: 13px; color: var(--text-muted);">Region Focus Matrix:</label>
-            <select style="width: 180px;">
-                <option>Boise Metropolitan</option>
-            </select>
+        <h1>Local Vantage Executive Space</h1>
+        <div class="search-region-wrapper">
+            <input type="text" id="region-search-input" placeholder="Boise Metro Sector Matrix Active" disabled>
         </div>
     </header>
 
     <div class="grid-layout">
-        <!-- Live Map Area Panel Frame -->
         <div class="panel">
-            <div class="section-title">Google Maps Active Interface Overlay</div>
+            <div class="section-title">Google Maps Operational Overlay</div>
             <div id="google-map-view"></div>
         </div>
 
-        <!-- 100 Lead Scaled Target Panel Directory Block -->
         <div class="panel">
             <div class="section-title">
-                <span>Enterprise Directory</span>
+                <span>Enterprise Registry Target Index</span>
                 <button class="btn-gold" onclick="generateBulkEmailDoc()">Compile Outbox Document</button>
             </div>
             <div class="directory-scroll">
-                <table class="lead-table" id="directory-target-table">
+                <table class="lead-table">
                     <thead>
                         <tr>
                             <th width="40"><input type="checkbox" id="select-all-leads" onclick="toggleSelectAll()"></th>
-                            <th>Business Parameters</th>
-                            <th>Metrics</th>
+                            <th>Corporate Entity Space</th>
+                            <th>Action Execution</th>
                         </tr>
                     </thead>
-                    <tbody id="lead-matrix-rows">
-                        <!-- Dynamic elements render via setup procedures below -->
-                    </tbody>
+                    <tbody id="lead-matrix-rows"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- 52-Week Rolling Financial Evaluation Table Panel -->
     <div class="panel">
-        <div class="section-title">52-Week Financial Analytics Ledger System</div>
+        <div class="section-title">52-Week Financial Ledger Framework (YTD Accrual Scope)</div>
+        
+        <div class="timeline-controls">
+            <div>
+                <label style="font-size:12px; color:var(--text-muted);">Simulated Calendar Progress Interval:</label>
+                <select id="current-week-filter" onchange="updateCurrentWeekViewport()">
+                    </select>
+            </div>
+            <button class="btn-gold" style="margin-left:auto;" onclick="openContractModal()">+ Provision Individual Contract Asset</button>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div style="font-size:12px; color:var(--text-muted);">Year-to-Date Gross Yield</div>
+                <div class="kpi-value" id="kpi-ytd-gross">$0.00</div>
+            </div>
+            <div class="kpi-card">
+                <div style="font-size:12px; color:var(--text-muted);">Year-to-Date Net Overhead Operational Margin</div>
+                <div class="kpi-value" id="kpi-ytd-net" style="color:var(--success-green);">$0.00</div>
+            </div>
+            <div class="kpi-card">
+                <div style="font-size:12px; color:var(--text-muted);">Monthly Active Accounts Retained</div>
+                <div class="kpi-value" id="kpi-active-retained">0 Client Anchors</div>
+            </div>
+        </div>
+
         <div class="chart-container">
             <canvas id="financialChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- Dynamic Evaluation Segment View Data Point Tracker Modals -->
-<div class="modal" id="dataModal">
+<div class="modal" id="weekDetailsModal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal('dataModal')">&times;</span>
-        <h2 id="modal-title" style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;"></h2>
-        <div id="modal-body" style="font-size: 14px; line-height: 1.6; max-height:450px; overflow-y:auto;"></div>
+        <span class="close-btn" onclick="closeModal('weekDetailsModal')">&times;</span>
+        <h2 id="week-modal-title" style="color:var(--accent-gold); margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;"></h2>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+            <div class="day-box" style="background:#151515;">
+                <h3 style="font-size:14px; margin-bottom:10px; color:var(--accent-gold);">Weekly Fixed Overhead & Expenses</h3>
+                <label>Variable Operating Outlays ($)</label>
+                <input type="number" id="modal-week-expenses" style="width:100%; margin-top:5px;" onchange="saveWeeklyParameters()">
+            </div>
+            <div class="day-box" style="background:#151515;">
+                <h3 style="font-size:14px; margin-bottom:10px; color:var(--accent-gold);">Accounts Won Inside Window</h3>
+                <label>Corporate Conversions Confirmed</label>
+                <input type="text" id="modal-week-conversions" placeholder="e.g. Timberline Solutions, Apex" style="width:100%; margin-top:5px;" onchange="saveWeeklyParameters()">
+            </div>
+        </div>
+
+        <h3 style="font-size:14px; color:var(--accent-gold); margin-bottom:5px; text-transform:uppercase;">Monday - Friday Operational Progress Ledger</h3>
+        <div class="day-grid" id="day-grid-container">
+            </div>
+        
+        <button class="btn-gold" style="margin-top:20px; width:100%;" onclick="closeModal('weekDetailsModal')">Finalize Parameters and Commit Changes</button>
     </div>
 </div>
 
-<!-- Compiled System Manifest Layout Workspace Panel View -->
+<div class="modal" id="contractModal">
+    <div class="modal-content" style="max-width:500px;">
+        <span class="close-btn" onclick="closeModal('contractModal')">&times;</span>
+        <h2 style="color:var(--accent-gold); margin-bottom:15px; text-transform:uppercase;">Provision Active Client Contract Asset</h2>
+        
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            <div style="display:flex; flex-direction:column;">
+                <label style="font-size:12px; color:var(--text-muted);">Enterprise Name Reference</label>
+                <input type="text" id="contract-name" placeholder="e.g. Timberline Solutions">
+            </div>
+            <div style="display:flex; flex-direction:column;">
+                <label style="font-size:12px; color:var(--text-muted);">Monthly Fixed Retainer Structure ($)</label>
+                <input type="number" id="contract-retainer" value="1500">
+            </div>
+            <div style="display:flex; flex-direction:column;">
+                <label style="font-size:12px; color:var(--text-muted);">Baseline Launch Milestone Week</label>
+                <input type="number" id="contract-start" min="1" max="52" value="1">
+            </div>
+            <button class="btn-gold" style="margin-top:10px;" onclick="commitContractAsset()">Deploy Contract Infrastructure</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="docModal">
-    <div class="modal-content" style="max-width: 850px; width:95%;">
+    <div class="modal-content">
         <span class="close-btn" onclick="closeModal('docModal')">&times;</span>
-        <h3 style="color: #2b579a; display: flex; align-items: center; gap: 8px;">
+        <h3 style="color:#2b579a; display:flex; align-items:center; gap:8px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#2b579a"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            Google Docs Compilation Layout Workspace (BCC Outbox Struct Applied)
+            Google Docs Outbox Compilation Layout Workspace
         </h3>
         <div class="doc-format" id="doc-content"></div>
     </div>
@@ -336,219 +405,155 @@
 <script>
     let mapInstance;
     let chartInstance;
-    let mapMarkersArray = [];
+    let activeSystemTrackingWeek = 12; // Dynamic initial tracking horizon window limit scalar
+    
+    // Core App State Databases
+    const activeContractsRegistry = [
+        { name: "Apex Auto Body", retainer: 1500, startWeek: 1, mgr: "John Davis", phone: "(208) 555-0192", email: "jdavis@apexautobody.com", addr: "123 Main St, Boise, ID" },
+        { name: "Boise Valley Plumbing", retainer: 1200, startWeek: 1, mgr: "Sarah Jenkins", phone: "(208) 555-0143", email: "s.jenkins@bvplumbing.org", addr: "745 Maple Rd, Meridian, ID" },
+        { name: "Star Cafe & Bakery", retainer: 900, startWeek: 4, mgr: "Mateo Silva", phone: "(208) 555-0177", email: "mateo@starcafe.com", addr: "902 Idaho St, Boise, ID" }
+    ];
 
-    // Structured Dataset Arrays scaled out to fulfill 100 system tracking leads
-    const businessCategories = ["Automotive Repair", "Contracting & Services", "Hospitality Logistics", "Retail Operations", "Medical Diagnostics"];
-    const streetsIndex = ["Main St", "Idaho St", "Front St", "Capitol Blvd", "Broadway Ave", "Chinden Blvd", "Eagle Rd"];
-    const namesIndex = ["Apex", "Boise Valley", "Star", "Timberline", "Owyhee", "Sawtooth", "Gem State", "Treasure Valley", "Capital City", "High Desert"];
-    const suffixIndex = ["Body", "Plumbing", "Bakery", "Electric", "Solutions", "Ventures", "Enterprises", "Group", "Partners"];
-    const managersIndex = ["John Davis", "Sarah Jenkins", "Mateo Silva", "James Clark", "Elena Rostova", "Marcus Vance", "Diana Prince", "David Miller"];
+    const weeklyPerformanceLedgerDB = {};
+    const globalLeadPoolDB = [];
 
-    // Base active parameters seed dictionary elements
-    const primaryActiveRegistry = {
-        1: { name: "Apex Auto Body", mgr: "John Davis", phone: "(208) 555-0192", email: "jdavis@apexautobody.com", addr: "123 Main St, Boise, ID", lat: 43.6150, lng: -116.2023, color: "var(--color-prime)", val: "$1.2M-$2.5M", prob: "85%", site: "https://www.apexautobodyboise.com" },
-        2: { name: "Boise Valley Plumbing", mgr: "Sarah Jenkins", phone: "(208) 555-0143", email: "s.jenkins@bvplumbing.org", addr: "745 Maple Rd, Meridian, ID", lat: 43.6121, lng: -116.3915, color: "var(--color-secondary)", val: "$800k-$1.5M", prob: "62%", site: "https://www.boisevalleyplumbing.com" },
-        3: { name: "Star Cafe & Bakery", mgr: "Mateo Silva", phone: "(208) 555-0177", email: "mateo@starcafe.com", addr: "902 Idaho St, Boise, ID", lat: 43.6172, lng: -116.2110, color: "var(--color-tertiary)", val: "$500k-$900k", prob: "78%", site: "https://www.starcafeandbakery.com" }
-    };
+    // Initialize ledger metrics data blocks cleanly
+    function configurePerformanceDatabaseBaselines() {
+        for (let w = 1; w <= 52; w++) {
+            weeklyPerformanceLedgerDB[w] = {
+                expenses: 450 + Math.floor(Math.random() * 150),
+                conversions: w === 4 ? "Star Cafe & Bakery" : "",
+                days: {
+                    monday: "System operations checked. Lead queues synchronized.",
+                    tuesday: "Dispatched proposal drafts to regional prospects.",
+                    wednesday: "Conducted site audit analysis optimization sweeps.",
+                    thursday: "Follow-up execution sequences committed via communications core.",
+                    friday: "Pipeline closures logged. Strategic metrics indexed."
+                }
+            };
+        }
+    }
 
-    const targetMasterLeadEngineDB = [];
-
-    // Automatically construct 100 actionable lead database entries anchored within the Boise quadrant coordinates
-    function dynamicallyBuildLeadEngineDB() {
-        // Enforce the 3 base seed values across indexes 1-3 first
-        targetMasterLeadEngineDB.push(primaryActiveRegistry[1]);
-        targetMasterLeadEngineDB.push(primaryActiveRegistry[2]);
-        targetMasterLeadEngineDB.push(primaryActiveRegistry[3]);
-
-        for (let i = 4; i <= 100; i++) {
-            let rndName = `${namesIndex[Math.floor(Math.random() * namesIndex.length)]} ${suffixIndex[Math.floor(Math.random() * suffixIndex.length)]} ${i}`;
-            let rndMgr = managersIndex[Math.floor(Math.random() * managersIndex.length)];
-            let rndStreet = `${Math.floor(Math.random() * 2500) + 100} ${streetsIndex[Math.floor(Math.random() * streetsIndex.length)]}`;
-            let rndCat = businessCategories[Math.floor(Math.random() * businessCategories.length)];
-            
-            // Random distribution scatter offset generation coordinates across the Boise geographic vectors
-            let rndLat = 43.55 + (Math.random() * 0.15);
-            let rndLng = -116.45 + (Math.random() * 0.30);
-            
-            let idString = rndName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            targetMasterLeadEngineDB.push({
-                name: rndName,
-                mgr: rndMgr,
-                phone: `(208) 555-${String(Math.floor(Math.random() * 9000) + 1000)}`,
-                email: `contact@${idString}.com`,
-                addr: `${rndStreet}, Boise, ID`,
-                lat: rndLat,
-                lng: rndLng,
-                color: "var(--accent-blue)",
-                val: `$${Math.floor(Math.random() * 800) + 200}k-$1.2M`,
-                prob: `${Math.floor(Math.random() * 50) + 40}%`,
-                site: `https://www.${idString}.com`,
-                category: rndCat
+    function buildLeadPoolRegistry() {
+        activeContractsRegistry.forEach(c => globalLeadPoolDB.push({ ...c, isLead: false }));
+        
+        const boilerplateNames = ["Timberline Solutions", "Sawtooth Ventures", "Owyhee Ventures", "Gem State Logistics", "Capital City Group"];
+        const boilerplateMgrs = ["James Clark", "Elena Rostova", "Marcus Vance", "Diana Prince", "David Miller"];
+        
+        for (let i = 0; i < 20; i++) {
+            let nameRef = boilerplateNames[i % boilerplateNames.length] + ` & Co`;
+            globalLeadPoolDB.push({
+                name: nameRef,
+                retainer: 1000 + (i * 100),
+                startWeek: 12,
+                mgr: boilerplateMgrs[i % boilerplateMgrs.length],
+                phone: `(208) 555-${1000 + i}`,
+                email: `contact@${nameRef.toLowerCase().replace(/[^a-z]/g, '')}.com`,
+                addr: `${500 + i} Capitol Blvd, Boise, ID`,
+                isLead: true
             });
         }
     }
 
-    // Main deployment application initializing wrapper trigger hook
     function initApplication() {
-        dynamicallyBuildLeadEngineDB();
-        renderMapInterface();
+        configurePerformanceDatabaseBaselines();
+        buildLeadPoolRegistry();
+        populateTimelineSelectors();
         renderLeadDirectoryTable();
-        initChartLedgerSystem();
+        renderMapInterface();
+        recalculateAndSynchronizeLedgerWorkspace();
     }
 
-    // Construct live interactive Google Map interface layouts
-    function renderMapInterface() {
-        const centerBoiseMatrix = { lat: 43.6150, lng: -116.2023 };
-        
-        // Custom dark visibility template arrays applied to the Google Map wrapper layer
-        const minimalDarkStylingArray = [
-            { elementType: "geometry", stylers: [{ color: "#212121" }] },
-            { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-            { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
-            { strokeColor: "#1f1f1f", elementType: "geometry", featureType: "road" }
-        ];
-
-        mapInstance = new google.maps.Map(document.getElementById("google-map-view"), {
-            zoom: 11,
-            center: centerBoiseMatrix,
-            styles: minimalDarkStylingArray,
-            disableDefaultUI: false
-        });
-
-        // Parse through entire database records arrays array and project interactive marker instances
-        targetMasterLeadEngineDB.forEach((lead, index) => {
-            const marker = new google.maps.Marker({
-                position: { lat: lead.lat, lng: lead.lng },
-                map: mapInstance,
-                title: lead.name,
-                label: {
-                    text: String(index + 1),
-                    color: "#121212",
-                    fontWeight: "bold",
-                    fontSize: "11px"
-                },
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    fillColor: "#c5a059",
-                    fillOpacity: 1,
-                    strokeColor: "#ffffff",
-                    strokeWeight: 1.5,
-                    scale: 14
-                }
-            });
-
-            // Bind click listeners directly into directory selection panel behaviors
-            marker.addListener("click", () => {
-                focusRowAndExpand(index);
-            });
-
-            mapMarkersArray.push(marker);
-        });
+    function populateTimelineSelectors() {
+        const selectBox = document.getElementById("current-week-filter");
+        selectBox.innerHTML = "";
+        for (let w = 1; w <= 52; w++) {
+            let opt = document.createElement("option");
+            opt.value = w;
+            opt.innerText = `View up to Week ${w} (YTD Frame)`;
+            if (w === activeSystemTrackingWeek) opt.selected = true;
+            selectBox.appendChild(opt);
+        }
     }
 
-    // Build lead selection target element sets systematically inside DOM components
+    function updateCurrentWeekViewport() {
+        activeSystemTrackingWeek = parseInt(document.getElementById("current-week-filter").value);
+        recalculateAndSynchronizeLedgerWorkspace();
+    }
+
     function renderLeadDirectoryTable() {
         const tbody = document.getElementById("lead-matrix-rows");
         tbody.innerHTML = "";
-
-        targetMasterLeadEngineDB.forEach((lead, index) => {
+        globalLeadPoolDB.forEach((lead, index) => {
             const row = document.createElement("tr");
             row.className = "lead-row";
-            row.id = `lead-idx-row-${index}`;
-            row.setAttribute("onclick", `checkRowTrigger(event, ${index})`);
-
             row.innerHTML = `
                 <td><input type="checkbox" class="lead-checkbox" value="${index}"></td>
                 <td>
-                    <a href="${lead.site}" target="_blank" class="lead-name">${lead.name}</a><br>
-                    <small style="color: var(--text-muted);">${lead.category || "Automotive Repair"} | ${lead.addr} | ${lead.phone}</small>
+                    <strong class="lead-name">${lead.name}</strong><br>
+                    <small style="color:var(--text-muted); font-size:11px;">MGR: ${lead.mgr} | ${lead.phone} | ${lead.addr}</small>
                 </td>
                 <td>
-                    <span style="font-size: 13px;">${lead.val}</span><br>
-                    <small style="color: #4caf50;">Prob: ${lead.prob}</small>
+                    <button style="font-size:11px; padding:4px 8px;" onclick="forceManualSelectionFocus(${index})">Focus Track Space</button>
                 </td>
             `;
-
-            const detailsRow = document.createElement("tr");
-            detailsRow.className = "lead-details-row";
-            detailsRow.id = `details-idx-panel-${index}`;
-            detailsRow.innerHTML = `
-                <td colspan="3">
-                    <div class="details-container" style="border-left-color: ${lead.color === 'var(--accent-blue)' ? 'var(--accent-gold)' : lead.color}">
-                        <strong>Primary Corporate Contact:</strong> ${lead.mgr}<br>
-                        <strong>Secure Route Target Email:</strong> ${lead.email}<br>
-                        <strong>System Audit Insights:</strong> Production asset layers indicate structural opportunities for scalable direct optimization models.
-                    </div>
-                </td>
-            `;
-
             tbody.appendChild(row);
-            tbody.appendChild(detailsRow);
         });
     }
 
-    // Focus row tracking view execution
-    function focusRowAndExpand(index) {
-        toggleLeadDetailsPanel(index);
-        const targetedElementRow = document.getElementById(`lead-idx-row-${index}`);
-        if(targetedElementRow) {
-            targetedElementRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetedElementRow.style.backgroundColor = "rgba(197, 160, 89, 0.15)";
-            setTimeout(() => { targetedElementRow.style.backgroundColor = ""; }, 2000);
-        }
-    }
-
-    function toggleLeadDetailsPanel(index) {
-        const row = document.getElementById(`details-idx-panel-${index}`);
-        if (row) {
-            row.style.display = (row.style.display === 'table-row') ? 'none' : 'table-row';
-        }
-    }
-
-    function checkRowTrigger(e, index) {
-        if (e.target.type !== 'checkbox' && e.target.tagName !== 'A') {
-            toggleLeadDetailsPanel(index);
-        }
-    }
-
-    function toggleSelectAll() {
-        const master = document.getElementById('select-all-leads');
-        document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = master.checked);
-    }
-
-    // Compute rolling 52 segments historical calculations tracking models
-    function generateLedgerDatasets() {
-        let labels = Array.from({length: 52}, (_, i) => `Wk ${i + 1}`);
-        let grossRevenue = []; let operationalCosts = []; let netProfit = [];
-
-        for(let w = 1; w <= 52; w++) {
-            let weeklyGross = 0;
-            // Baseline contract generation evaluation analytics index metrics logic
-            if (primaryActiveRegistry[1].active !== false) weeklyGross += (1500 * 12) / 52;
-            if (primaryActiveRegistry[2].active !== false) weeklyGross += (1200 * 12) / 52;
-
-            let baseCosts = 1400 + (Math.cos(w / 3) * 120);
-            grossRevenue.push(Math.round(weeklyGross));
-            operationalCosts.push(Math.round(baseCosts));
-            netProfit.push(Math.round(weeklyGross - baseCosts));
-        }
-        return { labels, grossRevenue, operationalCosts, netProfit };
-    }
-
-    function initChartLedgerSystem() {
-        const data = generateLedgerDatasets();
-        const ctx = document.getElementById('financialChart').getContext('2d');
+    function recalculateAndSynchronizeLedgerWorkspace() {
+        let labelsArray = [];
+        let grossEarningsArray = [];
+        let overheadCostsArray = [];
+        let netProfitArray = [];
         
+        let cumulativeYTDGross = 0;
+        let cumulativeYTDOverhead = 0;
+
+        for (let w = 1; w <= activeSystemTrackingWeek; w++) {
+            labelsArray.push(`Wk ${w}`);
+            
+            // Accruing Monthly Retainer Infrastructure Calculation Logic per active anchor
+            let weeklyGrossAccrual = 0;
+            activeContractsRegistry.forEach(contract => {
+                if (w >= contract.startWeek) {
+                    weeklyGrossAccrual += (contract.retainer * 12) / 52;
+                }
+            });
+
+            let currentWeekExpenses = weeklyPerformanceLedgerDB[w].expenses;
+            let currentWeekNet = weeklyGrossAccrual - currentWeekExpenses;
+
+            cumulativeYTDGross += weeklyGrossAccrual;
+            cumulativeYTDOverhead += currentWeekExpenses;
+
+            grossEarningsArray.push(Math.round(weeklyGrossAccrual));
+            overheadCostsArray.push(Math.round(currentWeekExpenses));
+            netProfitArray.push(Math.round(currentWeekNet));
+        }
+
+        // Project updates directly onto physical KPI display targets
+        document.getElementById("kpi-ytd-gross").innerText = `$${cumulativeYTDGross.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById("kpi-ytd-net").innerText = `$${(cumulativeYTDGross - cumulativeYTDOverhead).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        
+        let concurrentActiveCount = activeContractsRegistry.filter(c => activeSystemTrackingWeek >= c.startWeek).length;
+        document.getElementById("kpi-active-retained").innerText = `${concurrentActiveCount} Active Account Anchors`;
+
+        renderDynamicChartInterface(labelsArray, grossEarningsArray, overheadCostsArray, netProfitArray);
+    }
+
+    function renderDynamicChartInterface(labels, gross, costs, net) {
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.labels,
+                labels: labels,
                 datasets: [
-                    { label: 'Gross Revenue Stream', data: data.grossRevenue, borderColor: '#c5a059', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1 },
-                    { label: 'Operational Baselines', data: data.operationalCosts, borderColor: '#4a5a6a', backgroundColor: 'transparent', borderWidth: 1.5, tension: 0.1 },
-                    { label: 'Net Profit Realized', data: data.netProfit, borderColor: '#4caf50', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1 }
+                    { label: 'Accrued Gross Target Revenue Stream', data: gross, borderColor: '#c5a059', backgroundColor: 'transparent', borderWidth: 2, tension: 0.15 },
+                    { label: 'Overhead Operational Variable Expenses', data: costs, borderColor: '#8b2635', backgroundColor: 'transparent', borderWidth: 1.5, tension: 0.15 },
+                    { label: 'Realized Net Revenue Yield Position', data: net, borderColor: '#4caf50', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.15 }
                 ]
             },
             options: {
@@ -556,90 +561,117 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { labels: { color: '#e0e0e0', font: { size: 11 } } } },
                 scales: {
-                    x: { ticks: { color: '#a0a0a0', font: { size: 9 } }, grid: { color: '#2d2d2d' } },
+                    x: { ticks: { color: '#a0a0a0' }, grid: { color: '#2d2d2d' } },
                     y: { ticks: { color: '#a0a0a0' }, grid: { color: '#2d2d2d' } }
                 },
                 onClick: (e, elements) => {
                     if (elements.length > 0) {
-                        triggerDataPointModal(elements[0].index + 1);
+                        let selectedIndexNode = elements[0].index + 1;
+                        openWeeklyDeepDiveModal(selectedIndexNode);
                     }
                 }
             }
         });
     }
 
-    function triggerDataPointModal(weekNum) {
-        const modal = document.getElementById('dataModal');
-        const title = document.getElementById('modal-title');
-        const body = document.getElementById('modal-body');
+    let dynamicModalTargetWeekRef = null;
+    
+    function openWeeklyDeepDiveModal(weekNumber) {
+        dynamicModalTargetWeekRef = weekNumber;
+        document.getElementById("week-modal-title").innerText = `Deep Dive Operational Scope — Week ${weekNumber}`;
+        
+        const targetDataRecord = weeklyPerformanceLedgerDB[weekNumber];
+        document.getElementById("modal-week-expenses").value = targetDataRecord.expenses;
+        document.getElementById("modal-week-conversions").value = targetDataRecord.conversions;
 
-        title.innerText = `Active Account Metrics Snapshot — Rolling Week ${weekNum}`;
-        
-        let htmlContent = `<p style="margin-bottom: 15px; color: var(--text-muted);">Active corporate contract profiles logged within evaluation pipeline:</p>`;
-        
-        [primaryActiveRegistry[1], primaryActiveRegistry[2]].forEach(b => {
-            htmlContent += `
-                <div style="background-color: ${b.color}; color: #ffffff; padding: 15px; border-radius: 4px; margin-bottom: 12px;">
-                    <strong style="font-size: 16px;">${b.name}</strong><br>
-                    <span style="font-size: 13px; opacity: 0.9;">
-                        Manager: ${b.mgr} | Phone: ${b.phone}<br>
-                        Address: ${b.addr}
-                    </span>
-                </div>`;
+        const container = document.getElementById("day-grid-container");
+        container.innerHTML = "";
+
+        const daysKeyArray = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+        daysKeyArray.forEach(day => {
+            let dayBox = document.createElement("div");
+            dayBox.className = "day-box";
+            dayBox.innerHTML = `
+                <label>${day}</label>
+                <textarea id="modal-day-field-${day}" onchange="saveWeeklyParameters()">${targetDataRecord.days[day] || ""}</textarea>
+            `;
+            container.appendChild(dayBox);
         });
 
-        body.innerHTML = htmlContent;
-        modal.style.display = 'flex';
+        document.getElementById("weekDetailsModal").style.display = "flex";
     }
 
-    // Compile dynamic items directly inside document workspace modules
+    function saveWeeklyParameters() {
+        if (!dynamicModalTargetWeekRef) return;
+        
+        let record = weeklyPerformanceLedgerDB[dynamicModalTargetWeekRef];
+        record.expenses = parseFloat(document.getElementById("modal-week-expenses").value) || 0;
+        record.conversions = document.getElementById("modal-week-conversions").value;
+
+        const daysKeyArray = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+        daysKeyArray.forEach(day => {
+            record.days[day] = document.getElementById(`modal-day-field-${day}`).value;
+        });
+
+        recalculateAndSynchronizeLedgerWorkspace();
+    }
+
+    function openContractModal() { document.getElementById("contractModal").style.display = "flex"; }
+    
+    function commitContractAsset() {
+        let name = document.getElementById("contract-name").value;
+        let retainer = parseFloat(document.getElementById("contract-retainer").value) || 0;
+        let start = parseInt(document.getElementById("contract-start").value) || 1;
+
+        if(!name) { alert("Please provide a valid asset label descriptor."); return; }
+
+        activeContractsRegistry.push({
+            name: name,
+            retainer: retainer,
+            startWeek: start,
+            mgr: "Assigned Executive Administrator",
+            phone: "(208) 555-AUTO",
+            email: "admin@localvantage.internal",
+            addr: "Boise Corporate Domain Space Corridor"
+        });
+
+        closeModal("contractModal");
+        recalculateAndSynchronizeLedgerWorkspace();
+    }
+
     function generateBulkEmailDoc() {
         const checkboxes = document.querySelectorAll('.lead-checkbox:checked');
-        if (checkboxes.length === 0) {
-            alert('Selection requirements null. Check targeted registry entries.');
-            return;
-        }
+        if (checkboxes.length === 0) { alert('Please choose target records first.'); return; }
 
         const docModal = document.getElementById('docModal');
         const docContent = document.getElementById('doc-content');
         
         let docHtml = `
-            <div style="border-bottom: 2px solid #2b579a; padding-bottom: 10px; margin-bottom: 20px;">
-                <h1 style="font-size: 22px; margin: 0; color: #2b579a;">Outreach Manifest & Email Draft Framework</h1>
-                <p style="margin: 5px 0 0 0; color: #555; font-size: 13px;">Compiled Volume: ${checkboxes.length} Lead Record Segments</p>
+            <div style="border-bottom: 2px solid #2b579a; padding-bottom:10px; margin-bottom:20px;">
+                <h1 style="font-size:22px; margin:0; color:#2b579a;">Outreach Manifest & Tailored Pitch Document</h1>
             </div>
-            
-            <div style="background-color: #f3f3f3; padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 25px; font-size: 12px; word-break: break-all;">
-                <strong>BCC Routing Array Target Chain Index:</strong><br>
-                <span style="color: #0066cc;">`;
+            <div style="background-color:#f3f3f3; padding:12px; border:1px solid #ddd; border-radius:4px; margin-bottom:25px; font-size:12px; word-break:break-all;">
+                <strong>BCC Outbox Matrix Destination Arrays:</strong><br>
+                <span style="color:#0066cc;">`;
 
-        let emailList = [];
+        let bccList = [];
         checkboxes.forEach(cb => {
-            const idx = parseInt(cb.value);
-            const b = targetMasterLeadEngineDB[idx];
-            if (b) emailList.push(`${b.name} &lt;${b.email}&gt;`);
+            let targetObj = globalLeadPoolDB[parseInt(cb.value)];
+            if(targetObj) bccList.push(`${targetObj.name} &lt;${targetObj.email}&gt;`);
         });
-        
-        docHtml += emailList.join('; ') + `</span></div>`;
+        docHtml += bccList.join('; ') + `</span></div>`;
 
         checkboxes.forEach(cb => {
-            const idx = parseInt(cb.value);
-            const b = targetMasterLeadEngineDB[idx];
+            let targetObj = globalLeadPoolDB[parseInt(cb.value)];
             docHtml += `
-                <div style="margin-bottom: 35px; border-bottom: 1px dashed #ccc; padding-bottom: 20px;">
-                    <h3 style="color: #333; margin-bottom: 8px;">Target Lead Account Parameters: [Index Record #${idx + 1}] ${b.name}</h3>
-                    <table style="width: 100%; font-size: 12px; color: #555; margin-bottom: 12px; background: #fafafa; border: 1px solid #eee;">
-                        <tr><td style="padding: 5px; width: 120px;"><strong>Corporate Head:</strong></td><td style="padding: 5px;">${b.mgr}</td></tr>
-                        <tr><td style="padding: 5px;"><strong>Office Target Line:</strong></td><td style="padding: 5px;">${b.phone}</td></tr>
-                        <tr><td style="padding: 5px;"><strong>Physical Address:</strong></td><td style="padding: 5px;">${b.addr}</td></tr>
-                    </table>
-                    
-                    <div style="border: 1px solid #ccc; padding: 15px; background: #fff; border-left: 4px solid #2b579a; font-size: 14px; color: #222; line-height: 1.5;">
-                        <p><strong>Subject:</strong> Infrastructure Scale Strategy / Enterprise Capture Models</p><br>
-                        <p>Dear ${b.mgr},</p><br>
-                        <p>I was reviewing the operational profiles logged for <strong>${b.name}</strong> at your ${b.addr} location. When processing interface data trends throughout our regional platform vectors, we isolated specific structural layers where our automation suites can optimize system yields.</p><br>
-                        <p>Let's coordinate a brief assessment window this week via your direct line at ${b.phone} or through return dispatch lines.</p><br>
-                        <p>Best regards,<br>[Sales and Operations Management Matrix Lead]</p>
+                <div style="margin-bottom:35px; border-bottom:1px dashed #ccc; padding-bottom:20px;">
+                    <h3 style="color:#333; margin-bottom:8px;">Target Context Parameters: ${targetObj.name}</h3>
+                    <div style="border:1px solid #ccc; padding:15px; background:#fff; border-left:4px solid #2b579a; font-size:14px; color:#222; line-height:1.5;">
+                        <p><strong>Subject:</strong> Strategic Local Visibility Optimization Proposal</p><br>
+                        <p>Dear ${targetObj.mgr},</p><br>
+                        <p>I was reviewing the operational posture for <strong>${targetObj.name}</strong> located at ${targetObj.addr}. When evaluating your direct interface footprints across the Boise market space, it looks like there are major areas to modernize your digital platforms to boost capture automation and tracking logic.</p><br>
+                        <p>I would appreciate a brief call this week via your direct workspace line at ${targetObj.phone} or back through this digital dispatch corridor to step through our high-conversion operational workflows.</p><br>
+                        <p>Best regards,<br>[Executive Consultant / Local Vantage Execution Core]</p>
                     </div>
                 </div>`;
         });
@@ -648,9 +680,55 @@
         docModal.style.display = 'flex';
     }
 
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
+    function renderMapInterface() {
+        const defaultBoiseCoordinates = { lat: 43.6150, lng: -116.2023 };
+        const customizedDarkMapStyles = [
+            { elementType: "geometry", stylers: [{ color: "#212121" }] },
+            { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+            { strokeColor: "#1f1f1f", elementType: "geometry", featureType: "road" }
+        ];
+
+        mapInstance = new google.maps.Map(document.getElementById("google-map-view"), {
+            zoom: 12,
+            center: defaultBoiseCoordinates,
+            styles: customizedDarkMapStyles,
+            disableDefaultUI: false
+        });
+
+        // Scatter interactive operational anchor pins across quadrant vectors
+        globalLeadPoolDB.forEach((lead, idx) => {
+            let varianceFactorLat = (idx * 0.004) * (idx % 2 === 0 ? 1 : -1);
+            let varianceFactorLng = (idx * 0.006) * (idx % 3 === 0 ? 1 : -1);
+            
+            const marker = new google.maps.Marker({
+                position: { lat: 43.6150 + varianceFactorLat, lng: -116.2023 + varianceFactorLng },
+                map: mapInstance,
+                title: lead.name,
+                label: { text: String(idx + 1), color: "#121212", fontWeight: "bold", fontSize: "10px" },
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: "#c5a059",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 1,
+                    scale: 12
+                }
+            });
+        });
     }
+
+    function forceManualSelectionFocus(index) {
+        alert(`Focusing interface coordinate sets associated with target asset index descriptor #${index + 1}: ${globalLeadPoolDB[index].name}`);
+    }
+
+    function toggleSelectAll() {
+        const master = document.getElementById('select-all-leads');
+        document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+    
+    window.onload = initApplication;
 </script>
 
 </body>
